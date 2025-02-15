@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Stok" ADD COLUMN     "mark" VARCHAR(10) NOT NULL DEFAULT 'PRODUK';

@@ -1,0 +1,19 @@
+GET http://localhost:4000/api-v1/transaksi
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+DELETE http://localhost:4000/api-v1/transaksi/98ff968f-58c0-432e-a6b9-b03fc9b67f3d
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+GET http://localhost:4000/api-v1/transaksi-detail/98ff968f-58c0-432e-a6b9-b03fc9b67f3d
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+GET http://localhost:4000/api-v1/transaksi-report/2025-02-14
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+
+

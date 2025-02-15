@@ -1,0 +1,14 @@
+POST http://localhost:4000/api-v1/kategori
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+{
+  "nama": "Makanan"
+}
+
+GET http://localhost:4000/api-v1/kategori
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+

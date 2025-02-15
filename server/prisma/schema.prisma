@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Toko {
+  id         String   @id @default(uuid()) @db.Uuid
+  nama       String   @db.VarChar(50)
+  alamat     String   @db.VarChar(255)
+  hp         String   @db.VarChar(13)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User[]
+}
+
+model User {
+  email      String      @id @db.VarChar(100)
+  nama       String?     @db.VarChar(20)
+  password   String      @db.VarChar(255)
+  toko_id    String      @db.Uuid
+  toko       Toko        @relation(fields: [toko_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  stok       Stok[]
+  transaksi  Transaksi[]
+}
+
+model Kategori {
+  id         String   @id @default(uuid()) @db.Uuid
+  nama       String   @db.VarChar(50)
+  status     Boolean? @default(true) @db.Boolean
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  produk     Produk[]
+}
+
+model Produk {
+  id          String             @id @default(uuid()) @db.Uuid
+  kategori_id String             @db.Uuid
+  kategori    Kategori           @relation(fields: [kategori_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  diskon_id   String?            @db.Uuid
+  diskon      Diskon?            @relation(fields: [diskon_id], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  barcode     String             @unique @db.VarChar(50)
+  nama        String             @db.VarChar(100)
+  harga_beli  Decimal            @db.Money
+  harga_jual  Decimal            @db.Money
+  total_stok  Int?               @default(0) @db.Integer
+  image       String?            @db.VarChar(255)
+  status      Boolean?           @default(true) @db.Boolean
+  created_at  DateTime           @default(now())
+  updated_at  DateTime           @updatedAt
+  stok        Stok[]
+  transaksi   Transaksi_Detail[]
+}
+
+model Stok {
+  id         String   @id @default(uuid()) @db.Uuid
+  produk_id  String   @db.Uuid
+  produk     Produk   @relation(fields: [produk_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  email      String?  @db.VarChar(100)
+  user       User?    @relation(fields: [email], references: [email], onUpdate: Cascade, onDelete: Restrict)
+  qty        Int      @db.Integer
+  deskripsi  String   @db.Text
+  mark       String   @default("PRODUK") @db.VarChar(10)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Diskon {
+  id           String             @id @default(uuid()) @db.Uuid
+  nama         String             @db.VarChar(30)
+  type         String             @db.VarChar(10)
+  value        Decimal            @db.Decimal()
+  start_diskon DateTime           @db.Date
+  end_diskon   DateTime?          @db.Date
+  status       Boolean            @default(true)
+  created_at   DateTime           @default(now())
+  updated_at   DateTime           @updatedAt
+  produk       Produk[]
+  transaksi    Transaksi_Detail[]
+}
+
+model Transaksi {
+  id           String             @id @default(uuid()) @db.Uuid
+  email        String             @db.VarChar(100)
+  user         User               @relation(fields: [email], references: [email], onUpdate: Restrict, onDelete: Restrict)
+  mark         String             @db.VarChar(10)
+  sub_total    Decimal            @db.Money
+  total_diskon Decimal            @db.Money
+  total        Decimal            @db.Money
+  pembayaran   Decimal?           @db.Money
+  kembalian    Decimal?           @db.Money
+  no_faktur    String?            @db.Char(14)
+  created_at   DateTime           @default(now())
+  updated_at   DateTime           @updatedAt
+  updated_by   String             @db.VarChar(100)
+  transaksi    Transaksi_Detail[]
+}
+
+model Transaksi_Detail {
+  id                String    @id @default(uuid()) @db.Uuid
+  transaksi_id      String    @db.Uuid
+  transaksi         Transaksi @relation(fields: [transaksi_id], references: [id], onUpdate: Restrict, onDelete: Restrict)
+  produk_id         String    @db.Uuid
+  produk            Produk    @relation(fields: [produk_id], references: [id], onUpdate: Restrict, onDelete: Restrict)
+  barcode           String    @db.VarChar(50)
+  produk_nama       String    @db.VarChar(100)
+  produk_harga_beli Decimal   @db.Money
+  produk_harga_jual Decimal   @db.Money
+  qty               Int       @db.Integer
+  diskon_id         String?   @db.Uuid
+  diskon            Diskon?   @relation(fields: [diskon_id], references: [id], onUpdate: Restrict, onDelete: Restrict)
+  diskon_nama       String?   @db.VarChar(30)
+  diskon_total      Decimal?  @default(0) @db.Money
+  sub_total         Decimal   @db.Money
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+}

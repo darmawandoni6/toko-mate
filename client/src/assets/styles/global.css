@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: #dc2626;
+    --primary-100: #fee2e2;
+  }
+  body {
+    @apply font-nunito text-base font-normal text-[#67748E] accent-primary;
+  }
+
+  .form-container {
+    @apply mb-2;
+  }
+  .form-container > input:not([type='checkbox']),
+  .form-container > select,
+  .form-container > textarea {
+    @apply block w-full py-1 px-2 text-sm bg-white border rounded outline-none h-8 disabled:bg-gray-100;
+  }
+  .form-container textarea {
+    @apply resize-none h-auto;
+  }
+}
+
+@layer components {
+  .ellipsis-2 {
+    display: -webkit-box; /* Enable flex-like behavior for text */
+    -webkit-line-clamp: 2; /* Number of lines to show */
+    -webkit-box-orient: vertical; /* Define the box orientation */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+  }
+}

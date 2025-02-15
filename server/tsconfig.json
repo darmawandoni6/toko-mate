@@ -1,0 +1,30 @@
+{
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
+  "compilerOptions": {
+    "target": "ES2016",
+    "module": "CommonJS",
+    "lib": ["ES6"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "typeRoots": ["src/type", "./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "@config/*": ["src/config/*"],
+      "@controller/*": ["src/controllers/*"],
+      "@middleware/*": ["src/middlewares/*"],
+      "@repository/*": ["src/repository/*"],
+      "@route/*": ["src/routes/*"],
+      "@usecase/*": ["src/usecase/*"],
+      "@util/*": ["src/utils/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
