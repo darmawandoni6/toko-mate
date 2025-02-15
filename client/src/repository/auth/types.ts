@@ -1,19 +1,11 @@
-export interface RegisterAPI {
+export interface TokoAPI {
+  id: string;
   nama: string;
   alamat: string;
   hp: string;
-  user: {
-    email: string;
-    password: string;
-  };
+  created_at: Date;
+  updated_at: Date;
 }
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export type LoginForm = LoginPayload;
-
 export interface ProfileAPI {
   email: string;
   nama: string;
@@ -21,22 +13,30 @@ export interface ProfileAPI {
   toko_id: string;
   created_at: Date;
   updated_at: Date;
-  toko: {
-    id: string;
-    nama: string;
-    alamat: string;
-    hp: string;
-    created_at: Date;
-    updated_at: Date;
-  };
+  toko: TokoAPI;
 }
 
-export type ProfilePayload = Pick<ProfileAPI['toko'], 'nama' | 'alamat' | 'hp'> & {
+export type RegisterPayload = Pick<TokoAPI, 'nama' | 'alamat' | 'hp'> & {
+  user: Pick<ProfileAPI, 'nama' | 'email' | 'password'>;
+};
+export type RegisterForm = Pick<TokoAPI, 'nama' | 'alamat' | 'hp'> &
+  Pick<ProfileAPI, 'email' | 'password'> & {
+    userNama: string;
+  };
+
+export type LoginPayload = {
+  email: string;
+  password: string;
+};
+
+export type LoginForm = LoginPayload;
+
+export type ProfilePayload = Pick<TokoAPI, 'nama' | 'alamat' | 'hp'> & {
   user: Pick<ProfileAPI, 'email' | 'nama'> & {
     password?: string;
   };
 };
-export type ProfileForm = Pick<ProfileAPI['toko'], 'nama' | 'alamat' | 'hp'> &
+export type ProfileForm = Pick<TokoAPI, 'nama' | 'alamat' | 'hp'> &
   Pick<ProfileAPI, 'email' | 'password'> & {
     namaUser: string;
   };

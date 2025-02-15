@@ -32,11 +32,12 @@ function PostOrder() {
 
   const fetchAll = async () => {
     const t = await listTransaksiPending();
-    if (t[0]) {
-      const item = await listItem(t[0].id);
-      setItem(item);
-      setTrxId(t[0].id);
+    if (!t[0]) {
+      navigate('/', { replace: true });
     }
+    const item = await listItem(t[0].id);
+    setItem(item);
+    setTrxId(t[0].id);
   };
 
   const updateProduk = async (item: TransaksiDetailAPI, qty: number) => {

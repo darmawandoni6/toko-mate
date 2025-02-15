@@ -2,7 +2,6 @@ import { lazy, useEffect } from 'react';
 
 import { Route, Routes, useNavigate } from 'react-router-dom';
 
-import Footer from './components/footer';
 import { getProfile } from './repository/auth';
 import { useSetValue } from './utils/provider';
 
@@ -52,7 +51,6 @@ const App = () => {
         <Route element={<Transaksi />} path="/transaksi" />
         <Route element={<Profile />} path="/profil" />
       </Routes>
-      <Footer />
     </>
   );
 };

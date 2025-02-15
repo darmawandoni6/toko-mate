@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 
+import Footer from '../../components/footer';
 import { ProfileAPI } from '../../repository/auth/types';
 import { transaksiPerHari } from '../../repository/transaksi';
 import { currency } from '../../utils/number';
@@ -107,6 +108,7 @@ const Home = () => {
           </button>
         ))}
       </div>
+      <Footer />
     </>
   );
 };

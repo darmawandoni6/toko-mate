@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import Header from '../../components/header';
 import { listItem, listTransaksiPending, paymentTransaksi } from '../../repository/transaksi';
 import { TransaksiDetailAPI, TransaksiPaymentPayload } from '../../repository/transaksi/types';
@@ -9,6 +11,8 @@ import Payment from './payment';
 import Receipt from './receipt';
 
 function PosCheckout() {
+  const navigate = useNavigate();
+
   const [trxId, setTrxId] = useState<string>('');
   const [items, setItem] = useState<TransaksiDetailAPI[]>([]);
   const [transaksi, setTransaksi] = useState<TransaksiPaymentPayload>({ pembayaran: 0, kembalian: 0 });
@@ -40,11 +44,12 @@ function PosCheckout() {
 
   const fetchAll = async () => {
     const t = await listTransaksiPending();
-    if (t[0]) {
-      const item = await listItem(t[0].id);
-      setItem(item);
-      setTrxId(t[0].id);
+    if (!t[0]) {
+      navigate('/', { replace: true });
     }
+    const item = await listItem(t[0].id);
+    setItem(item);
+    setTrxId(t[0].id);
   };
 
   const onSubmit = async (payload: TransaksiPaymentPayload) => {

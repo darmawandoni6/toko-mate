@@ -4,10 +4,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
 import FormInput from '../../components/form-input';
-import { Auth } from '../../repository/auth';
-import { Register as RegisterType } from '../../repository/auth/types';
-
-const auth = new Auth();
+import { authRegister } from '../../repository/auth';
+import { RegisterForm, RegisterPayload } from '../../repository/auth/types';
 
 const Register = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -17,24 +15,22 @@ const Register = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterType>({
-    defaultValues: {
-      name: 'Doni Darmawan',
-      username: 'darmawandoni6',
-      password: 'kiasu123',
-      toko: {
-        nama: 'Toko Jaya Abadi',
-        alamat: 'JL Beringin raya I',
-        phone: '085761298781',
-      },
-    },
-  });
+  } = useForm<RegisterForm>();
 
-  const onSubmit: SubmitHandler<RegisterType> = async data => {
+  const onSubmit: SubmitHandler<RegisterForm> = async data => {
     try {
       setLoading(true);
-      await auth.register(data);
-
+      const payload: RegisterPayload = {
+        nama: data.nama,
+        alamat: data.alamat,
+        hp: data.hp,
+        user: {
+          nama: data.userNama,
+          email: data.email,
+          password: data.password,
+        },
+      };
+      await authRegister(payload);
       navigate('/login');
     } catch {
       setLoading(false);
@@ -48,23 +44,23 @@ const Register = () => {
         <h4 className="text-sm font-normal">Create New Toko-mate Account</h4>
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormInput id="name" label="Nama" message={errors.name?.message}>
-          <input type="text" {...register('name', { required: true })} />
+        <FormInput id="userNama" label="Nama" message={errors.userNama?.message}>
+          <input type="text" {...register('userNama', { required: true })} />
         </FormInput>
-        <FormInput id="username" label="Username" message={errors.username?.message}>
-          <input type="text" autoComplete="username" {...register('username', { required: true })} />
+        <FormInput id="email" label="Email" message={errors.email?.message}>
+          <input type="text" autoComplete="username" {...register('email', { required: true })} />
         </FormInput>
         <FormInput id="name" label="password" message={errors.password?.message}>
           <input type="password" autoComplete="new-password" {...register('password', { required: true })} />
         </FormInput>
-        <FormInput id="name" label="Nama Toko" message={errors.toko?.nama?.message}>
-          <input type="text" {...register('toko.nama', { required: true })} />
+        <FormInput id="nama" label="Nama Toko" message={errors.nama?.message}>
+          <input type="text" {...register('nama', { required: true })} />
         </FormInput>
-        <FormInput id="name" label="Alamat Toko" message={errors.toko?.alamat?.message}>
-          <input type="text" {...register('toko.alamat', { required: true })} />
+        <FormInput id="alamat" label="Alamat Toko" message={errors.alamat?.message}>
+          <input type="text" {...register('alamat', { required: true })} />
         </FormInput>
-        <FormInput id="name" label="No. Telp Toko" message={errors.toko?.phone?.message}>
-          <input type="text" inputMode="numeric" {...register('toko.phone', { required: true })} />
+        <FormInput id="hp" label="No. Telp Toko" message={errors.hp?.message}>
+          <input type="text" inputMode="numeric" {...register('hp', { required: true })} />
         </FormInput>
         <div className="mb-4">
           <button

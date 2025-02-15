@@ -2,6 +2,7 @@ import { KeyboardEvent, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
+import Header from '../../components/header';
 import RemoveAlert from '../../components/remove-alert';
 import { createKategori, listKategori, removeKategori, updateKategori } from '../../repository/kategori';
 import { KategoriAPI, KategoriForm, KategoriList } from '../../repository/kategori/types';
@@ -64,7 +65,9 @@ function Kategori() {
 
   return (
     <div className="flex flex-col gap-2">
-      <header className="h-12 border-b flex items-center px-2 gap-2">
+      <Header title="Kategori" />
+
+      <section className="h-12 border-b flex items-center px-2 gap-2">
         <div className="border flex-auto overflow-hidden h-8 rounded-full">
           <input
             type="text"
@@ -77,7 +80,7 @@ function Kategori() {
         <button className="h-8 aspect-square shrink-0" onClick={() => setShow(true)}>
           <i className="fa-solid fa-plus"></i>
         </button>
-      </header>
+      </section>
       <FormKategori show={show} setShow={() => setShow(false)} row={row} submit={submitForm} />
       <RemoveAlert show={!!remove} setShow={() => setRemove(undefined)} onSubmit={handleRemove} name={remove?.nama} />
       <section className="px-2">

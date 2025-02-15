@@ -3,6 +3,7 @@ import { KeyboardEvent, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { PropagateLoader } from 'react-spinners';
 
+import Header from '../../components/header';
 import ScrollElement from '../../components/scroll-element';
 import { AllListDiskon } from '../../repository/diskon';
 import { DiskonAPI } from '../../repository/diskon/types';
@@ -108,9 +109,11 @@ const Produk = () => {
 
   return (
     <div className="flex flex-col gap-2">
+      <Header title="Produk" />
+
       <FormProduk show={produk.form} setShow={onForm} diskon={diskon} kategori={kategori.list} setSubmit={onSubmit} />
 
-      <header className="h-12 border-b flex items-center px-2 gap-2">
+      <section className="h-12 border-b flex items-center px-2 gap-2">
         <div className="border flex-auto overflow-hidden h-8 rounded-full">
           <input
             type="text"
@@ -123,7 +126,7 @@ const Produk = () => {
         <button className="h-8 aspect-square shrink-0" onClick={onForm}>
           <i className="fa-solid fa-plus"></i>
         </button>
-      </header>
+      </section>
       <section className="px-2 flex gap-2 overflow-auto pb-2 text-nowrap">
         <button
           className={clsx('py-1 px-2 border rounded text-xs font-semibold', {
@@ -135,7 +138,7 @@ const Produk = () => {
         </button>
         {kategori.list.map(item => (
           <button
-            className={clsx('py-1 px-2 border rounded text-xs font-semibold', {
+            className={clsx('py-1 px-2 border rounded text-xs font-semibold capitalize', {
               ['text-primary border-primary']: kategori.active === item.id,
             })}
             key={item.id}
