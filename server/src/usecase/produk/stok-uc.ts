@@ -10,6 +10,7 @@ import { QueryPage } from "./types";
 
 export class StokUsecase {
   private readonly repo: StokRepository;
+  toko_id!: string;
   private data_create!: Prisma.StokUncheckedCreateInput;
   private data_update_produk!: Pick<Produk, "harga_beli" | "harga_jual">;
 
@@ -54,6 +55,7 @@ export class StokUsecase {
       qty: data.qty,
       deskripsi: data.deskripsi,
       email: data.email,
+      toko_id: this.toko_id,
     };
     this.data_update_produk = produk;
   }
@@ -66,8 +68,8 @@ export class StokUsecase {
   async list(query: QueryPage): Promise<ReturnType<typeof this.result>> {
     const payload = this.validate(this.validationSchemas.listQuery, query);
 
-    const result = await this.repo.list(query.page, query.pageSize);
-    const count = await this.repo.listCount();
+    const result = await this.repo.list(this.toko_id, query.page, query.pageSize);
+    const count = await this.repo.listCount(this.toko_id);
     const pagination: Pagination = {
       page: payload.page,
       limit: payload.pageSize,

@@ -22,7 +22,7 @@ model Toko {
 
 model User {
   email      String      @id @db.VarChar(100)
-  nama       String?     @db.VarChar(20)
+  nama       String      @db.VarChar(20)
   password   String      @db.VarChar(255)
   toko_id    String      @db.Uuid
   toko       Toko        @relation(fields: [toko_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
@@ -39,6 +39,7 @@ model Kategori {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   produk     Produk[]
+  toko_id    String   @db.Uuid
 }
 
 model Produk {
@@ -58,6 +59,7 @@ model Produk {
   updated_at  DateTime           @updatedAt
   stok        Stok[]
   transaksi   Transaksi_Detail[]
+  toko_id     String             @db.Uuid
 }
 
 model Stok {
@@ -71,6 +73,7 @@ model Stok {
   mark       String   @default("PRODUK") @db.VarChar(10)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  toko_id    String   @db.Uuid
 }
 
 model Diskon {
@@ -85,6 +88,7 @@ model Diskon {
   updated_at   DateTime           @updatedAt
   produk       Produk[]
   transaksi    Transaksi_Detail[]
+  toko_id      String             @db.Uuid
 }
 
 model Transaksi {
@@ -102,6 +106,7 @@ model Transaksi {
   updated_at   DateTime           @updatedAt
   updated_by   String             @db.VarChar(100)
   transaksi    Transaksi_Detail[]
+  toko_id      String             @db.Uuid
 }
 
 model Transaksi_Detail {
@@ -122,4 +127,5 @@ model Transaksi_Detail {
   sub_total         Decimal   @db.Money
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
+  toko_id           String    @db.Uuid
 }

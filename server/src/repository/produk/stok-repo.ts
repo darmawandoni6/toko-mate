@@ -27,13 +27,17 @@ export class StokRepository {
   }
 
   async list(
+    toko_id: string,
     page: number,
     pageSize: number
-  ): Promise<(Stok & { produk: Pick<Produk, "id" | "barcode" | "nama" | "harga_beli" | "harga_jual"> })[]> {
+  ): Promise<
+    (Omit<Stok, "toko_id"> & { produk: Pick<Produk, "id" | "barcode" | "nama" | "harga_beli" | "harga_jual"> })[]
+  > {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     const res = await this.prisma.stok.findMany({
+      where: { toko_id },
       skip,
       take,
       select: {
@@ -59,8 +63,8 @@ export class StokRepository {
     });
     return res;
   }
-  async listCount(): Promise<number> {
-    const count = await this.prisma.stok.count();
+  async listCount(toko_id: string): Promise<number> {
+    const count = await this.prisma.stok.count({ where: { toko_id } });
     return count;
   }
 }

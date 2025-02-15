@@ -26,7 +26,7 @@ export class TransaksiRouter {
     router.delete("/transaksi-detail/:id/:transaksi_id", authorized, this.c_transaksi.removeItem);
 
     router.get("/transaksi-per-hari", authorized, this.c_transaksi.transaksiPerHari);
-    router.get("/transaksi-report/:date", authorized, this.c_transaksi.test);
+    router.get("/transaksi-report/:date", authorized, this.c_transaksi.report);
     return router;
   }
 }

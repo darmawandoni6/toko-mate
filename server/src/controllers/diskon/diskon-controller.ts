@@ -15,6 +15,9 @@ export class DiskonController {
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       this.uc.dataCreate = req.body;
       const result = await this.uc.create();
       res.status(200).json(result);
@@ -24,6 +27,9 @@ export class DiskonController {
   };
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const query: QueryPage = {
         page: Number(req.query.page),
         pageSize: Number(req.query.pageSize),
@@ -36,6 +42,9 @@ export class DiskonController {
   };
   listOption = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const result = await this.uc.listOption();
       res.status(200).json(result);
     } catch (error) {
@@ -44,6 +53,9 @@ export class DiskonController {
   };
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       this.uc.dataUpdate = req.body;
       const result = await this.uc.update(req.params.id);
       res.status(200).json(result);
@@ -53,6 +65,9 @@ export class DiskonController {
   };
   detail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const result = await this.uc.detail(req.params.id);
       res.status(200).json(result);
     } catch (error) {
@@ -61,6 +76,8 @@ export class DiskonController {
   };
   remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
       const result = await this.uc.remove(req.params.id);
       res.status(200).json(result);
     } catch (error) {

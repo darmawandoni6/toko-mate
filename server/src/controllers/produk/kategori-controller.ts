@@ -14,6 +14,9 @@ export class KategoriController {
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       this.uc.dataCreate = req.body;
       const result = await this.uc.create();
       res.status(200).json(result);
@@ -23,6 +26,9 @@ export class KategoriController {
   };
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       this.uc.dataUpdate = req.body;
       const result = await this.uc.update(req.params.id);
       res.status(200).json(result);
@@ -32,6 +38,9 @@ export class KategoriController {
   };
   remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const result = await this.uc.remove(req.params.id);
       res.status(200).json(result);
     } catch (error) {
@@ -40,6 +49,9 @@ export class KategoriController {
   };
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const result = await this.uc.list();
       res.status(200).json(result);
     } catch (error) {

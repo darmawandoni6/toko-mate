@@ -12,6 +12,7 @@ import { QueryPage } from "./types";
 export class TransaksiUsecase {
   private readonly repo_transaksi: TransaksiRepository;
   private readonly repo_detail: TransaksiDetailRepository;
+  toko_id!: string;
   private data_create!: Prisma.TransaksiUncheckedCreateInput;
   private data_item!: Prisma.Transaksi_DetailUncheckedCreateInput;
   private body_item!: Transaksi_Detail;
@@ -130,6 +131,7 @@ export class TransaksiUsecase {
       pembayaran: null,
       kembalian: null,
       no_faktur: null,
+      toko_id: this.toko_id,
       transaksi: {
         create: {
           produk_id: detail.produk_id,
@@ -142,6 +144,7 @@ export class TransaksiUsecase {
           diskon_nama: detail.diskon_nama,
           diskon_total: detail.diskon_total,
           sub_total: detail.sub_total,
+          toko_id: this.toko_id,
         },
       },
     };
@@ -163,6 +166,7 @@ export class TransaksiUsecase {
       diskon_nama: detail.diskon_nama,
       diskon_total: detail.diskon_total,
       sub_total: detail.sub_total,
+      toko_id: this.toko_id,
     };
   }
   set dataUpdateItem(payload: Transaksi_Detail) {
@@ -188,12 +192,12 @@ export class TransaksiUsecase {
   }
 
   async list(email: string): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo_transaksi.list({ email, mark: "PENDING" });
+    const res = await this.repo_transaksi.list({ email, mark: "PENDING", toko_id: this.toko_id });
     return this.result(res);
   }
   async listReport(query: QueryPage): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo_transaksi.listReport(query);
-    const count = await this.repo_transaksi.countSuccess();
+    const res = await this.repo_transaksi.listReport(this.toko_id, query);
+    const count = await this.repo_transaksi.countSuccess(this.toko_id);
     const pagination: Pagination = {
       page: query.page,
       limit: query.pageSize,
@@ -210,11 +214,11 @@ export class TransaksiUsecase {
     return this.result(res);
   }
   async payment(id: string, email: string): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo_transaksi.listPayment(id);
+    const res = await this.repo_transaksi.listPayment(id, this.toko_id);
 
     const start = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const end = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
-    const count = await this.repo_transaksi.countSuccess({ gte: start, lt: end });
+    const count = await this.repo_transaksi.countSuccess(this.toko_id, { gte: start, lt: end });
 
     if (!res) {
       throw createHttpError.NotFound(`id transaksi: ${id} tidak ditemukan`);
@@ -245,17 +249,17 @@ export class TransaksiUsecase {
       produk_id: item.produk_id,
     }));
 
-    await this.repo_transaksi.update(id, this.data_payment, stok);
+    await this.repo_transaksi.update(id, this.toko_id, this.data_payment, stok);
     return this.result();
   }
 
   async remove(id: string, email: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo_transaksi.remove({ id, email, mark: "PENDING" });
+    await this.repo_transaksi.remove({ id, email, mark: "PENDING", toko_id: this.toko_id });
     return this.result();
   }
 
   async listItem(transaksi_id: string): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo_detail.list(transaksi_id);
+    const res = await this.repo_detail.list(transaksi_id, this.toko_id);
     return this.result(res);
   }
   async addItem(): Promise<ReturnType<typeof this.result>> {
@@ -264,21 +268,21 @@ export class TransaksiUsecase {
   }
   async checkItem(): Promise<ReturnType<typeof this.result> | void> {
     const { transaksi_id, produk_id } = this.body_item!;
-    const check = await this.repo_detail.find(transaksi_id, produk_id);
+    const check = await this.repo_detail.find(transaksi_id, produk_id, this.toko_id);
     if (!check) {
       return;
     }
     this.dataUpdateItem = this.body_item;
-    await this.repo_detail.update({ id: check.id, transaksi_id }, this.data_update_item);
+    await this.repo_detail.update({ id: check.id, transaksi_id, toko_id: this.toko_id }, this.data_update_item);
 
     return this.result();
   }
   async updateItem(id: string, transaksi_id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo_detail.update({ id, transaksi_id }, this.data_update_item);
+    await this.repo_detail.update({ id, transaksi_id, toko_id: this.toko_id }, this.data_update_item);
     return this.result();
   }
   async removeItem(id: string, transaksi_id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo_detail.remove({ id, transaksi_id });
+    await this.repo_detail.remove({ id, transaksi_id, toko_id: this.toko_id });
     return this.result();
   }
 
@@ -289,7 +293,7 @@ export class TransaksiUsecase {
     const tomorrow = new Date(now);
     tomorrow.setDate(now.getDate() + 1);
 
-    const res = await this.repo_transaksi.transaksiPerHari(email, now, tomorrow);
+    const res = await this.repo_transaksi.transaksiPerHari(email, this.toko_id, now, tomorrow);
     return this.result({ total: res });
   }
 
@@ -349,7 +353,7 @@ export class TransaksiUsecase {
 
     return weeks;
   }
-  async transaksiReport(email: string, date: Date) {
+  async transaksiReport(date: Date) {
     const thisWeek = this.getWeekRange(date, 0);
     const lastWeek = this.getWeekRange(date, -1);
 
@@ -362,7 +366,8 @@ export class TransaksiUsecase {
     const we = new Date(weeks[weeks.length - 1].end);
     const lte = we;
 
-    const result = await this.repo_transaksi.getTransaksi(gte, lte);
+    const result = await this.repo_transaksi.getTransaksi(this.toko_id, gte, lte);
+    console.log({ result });
 
     const revenueOfWeek = {
       thisWeek: 0,
@@ -389,13 +394,17 @@ export class TransaksiUsecase {
         }
       }
 
-      const ut = new Date(v.updated_at);
+      const ut = v.updated_at;
+      ut.setHours(0, 0, 0, 0);
 
       const idx = weeks.findIndex((item) => ut >= new Date(item.start) && new Date(item.end) >= ut);
       const prev = weekRevenue[idx] ?? 0;
       weekRevenue[idx] = prev + Number(v.total);
+      console.log({ ut, thisWeek, r: ut >= new Date(thisWeek.start), e: new Date(thisWeek.end) >= ut });
 
       if (ut >= new Date(thisWeek.start) && new Date(thisWeek.end) >= ut) {
+        console.log({ v });
+
         revenueOfWeek.thisWeek += Number(v.total);
         continue;
       }

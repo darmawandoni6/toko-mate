@@ -39,6 +39,7 @@ export class AuthUsecase {
       alamat: Joi.string().required(),
       hp: Joi.string().required(),
       user: Joi.object<User>({
+        nama: Joi.string().required(),
         email: Joi.string().required(),
         password: Joi.string().required(),
       }).required(),
@@ -100,6 +101,7 @@ export class AuthUsecase {
       hp: body.hp,
       user: {
         create: {
+          nama: user.nama,
           email: user.email,
           password: encrypt(user.password),
         },

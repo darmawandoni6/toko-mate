@@ -16,11 +16,12 @@ export class TransaksiRepository {
 
   async update(
     id: string,
+    toko_id: string,
     data: Prisma.TransaksiUpdateInput,
     stocks: Pick<Transaksi_Detail, "qty" | "produk_id">[]
   ): Promise<void> {
     await this.prisma.$transaction(async (trx) => {
-      await trx.transaksi.update({ where: { id }, data });
+      await trx.transaksi.update({ where: { id, toko_id }, data });
       for (const v of stocks) {
         await trx.stok.create({
           data: {
@@ -29,6 +30,7 @@ export class TransaksiRepository {
             produk_id: v.produk_id,
             mark: "TRANSAKSI",
             email: String(data.updated_by),
+            toko_id,
           },
         });
         await trx.produk.update({
@@ -41,16 +43,20 @@ export class TransaksiRepository {
     });
   }
 
-  async list({ mark, email }: Pick<Transaksi, "mark" | "email">): Promise<Pick<Transaksi, "id">[]> {
-    const res = await this.prisma.transaksi.findMany({ where: { mark, email } });
+  async list({
+    mark,
+    email,
+    toko_id,
+  }: Pick<Transaksi, "mark" | "email" | "toko_id">): Promise<Pick<Transaksi, "id">[]> {
+    const res = await this.prisma.transaksi.findMany({ where: { mark, email, toko_id } });
     return res;
   }
 
-  async listReport({ page, pageSize }: QueryPage): Promise<Transaksi[]> {
+  async listReport(toko_id: string, { page, pageSize }: QueryPage): Promise<Transaksi[]> {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
     const res = await this.prisma.transaksi.findMany({
-      where: { mark: "SUCCESS" },
+      where: { mark: "SUCCESS", toko_id },
       skip,
       take,
       orderBy: { no_faktur: "desc" },
@@ -59,14 +65,17 @@ export class TransaksiRepository {
     return res;
   }
 
-  async listPayment(id: string): Promise<
+  async listPayment(
+    id: string,
+    toko_id: string
+  ): Promise<
     | (Pick<Transaksi, "id" | "sub_total" | "total_diskon" | "total"> & {
         transaksi: Pick<Transaksi_Detail, "id" | "transaksi_id" | "sub_total" | "diskon_total" | "qty" | "produk_id">[];
       })
     | null
   > {
     const res = await this.prisma.transaksi.findUnique({
-      where: { id, mark: "PENDING" },
+      where: { id, mark: "PENDING", toko_id },
       select: {
         id: true,
         sub_total: true,
@@ -86,31 +95,33 @@ export class TransaksiRepository {
     });
     return res;
   }
-  async countSuccess(option?: RangeDate): Promise<number> {
+  async countSuccess(toko_id: string, option?: RangeDate): Promise<number> {
     const count = await this.prisma.transaksi.count({
       where: {
         mark: "SUCCESS",
+        toko_id,
         ...(option ? { updated_at: { gte: option.gte, lt: option.lt } } : {}),
       },
     });
     return count;
   }
 
-  async detail({ id, email }: Pick<Transaksi, "id" | "email">): Promise<Transaksi | null> {
-    const res = await this.prisma.transaksi.findFirst({ where: { id, email } });
+  async detail({ id, email, toko_id }: Pick<Transaksi, "id" | "email" | "toko_id">): Promise<Transaksi | null> {
+    const res = await this.prisma.transaksi.findFirst({ where: { id, email, toko_id } });
     return res;
   }
-  async remove({ id, email, mark }: Pick<Transaksi, "id" | "email" | "mark">): Promise<void> {
+  async remove({ id, email, mark, toko_id }: Pick<Transaksi, "id" | "email" | "mark" | "toko_id">): Promise<void> {
     await this.prisma.$transaction(async (trx) => {
-      await trx.transaksi_Detail.deleteMany({ where: { transaksi_id: id } });
-      await trx.transaksi.delete({ where: { id, email, mark } });
+      await trx.transaksi_Detail.deleteMany({ where: { transaksi_id: id, toko_id } });
+      await trx.transaksi.delete({ where: { id, email, mark, toko_id } });
     });
   }
-  async transaksiPerHari(email: string, gte: Date, lte: Date): Promise<number> {
+  async transaksiPerHari(email: string, toko_id: string, gte: Date, lte: Date): Promise<number> {
     const res = await this.prisma.transaksi.aggregate({
       where: {
         email,
         mark: "SUCCESS",
+        toko_id,
         updated_at: {
           gte,
           lte,
@@ -125,6 +136,7 @@ export class TransaksiRepository {
   }
 
   async getTransaksi(
+    toko_id: string,
     gte: Date,
     lte: Date
   ): Promise<
@@ -135,6 +147,7 @@ export class TransaksiRepository {
     const res = await this.prisma.transaksi.findMany({
       where: {
         mark: "SUCCESS",
+        toko_id,
         updated_at: {
           gte,
           lte,

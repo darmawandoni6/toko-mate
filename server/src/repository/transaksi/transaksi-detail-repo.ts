@@ -6,14 +6,18 @@ export class TransaksiDetailRepository {
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
-  async list(transaksi_id: string): Promise<Transaksi_Detail[]> {
-    const res = await this.prisma.transaksi_Detail.findMany({ where: { transaksi_id } });
+  async list(transaksi_id: string, toko_id: string): Promise<Transaksi_Detail[]> {
+    const res = await this.prisma.transaksi_Detail.findMany({ where: { transaksi_id, toko_id } });
     return res;
   }
 
-  async find(transaksi_id: string, produk_id: string): Promise<Pick<Transaksi_Detail, "id" | "qty"> | null> {
+  async find(
+    transaksi_id: string,
+    produk_id: string,
+    toko_id: string
+  ): Promise<Pick<Transaksi_Detail, "id" | "qty"> | null> {
     const res = await this.prisma.transaksi_Detail.findFirst({
-      where: { transaksi_id, produk_id },
+      where: { transaksi_id, produk_id, toko_id },
       select: {
         id: true,
         qty: true,
@@ -28,19 +32,21 @@ export class TransaksiDetailRepository {
   }
 
   async update(
-    { id, transaksi_id }: Pick<Transaksi_Detail, "id" | "transaksi_id">,
+    { id, transaksi_id, toko_id }: Pick<Transaksi_Detail, "id" | "transaksi_id" | "toko_id">,
     data: Prisma.Transaksi_DetailUncheckedUpdateInput
   ): Promise<void> {
     if (data.qty === 0) {
-      await this.remove({ id, transaksi_id });
+      await this.remove({ id, transaksi_id, toko_id });
       return;
     }
-    await this.prisma.transaksi_Detail.update({ where: { id, transaksi_id }, data });
+    await this.prisma.transaksi_Detail.update({ where: { id, transaksi_id, toko_id }, data });
   }
 
-  async remove({ id, transaksi_id }: Pick<Transaksi_Detail, "id" | "transaksi_id">): Promise<void> {
-    console.log({ id, transaksi_id });
-
-    await this.prisma.transaksi_Detail.delete({ where: { id, transaksi_id } });
+  async remove({
+    id,
+    transaksi_id,
+    toko_id,
+  }: Pick<Transaksi_Detail, "id" | "transaksi_id" | "toko_id">): Promise<void> {
+    await this.prisma.transaksi_Detail.delete({ where: { id, transaksi_id, toko_id } });
   }
 }

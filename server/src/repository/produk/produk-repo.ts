@@ -38,22 +38,25 @@ export class ProdukRepository {
     });
   }
 
-  async update(id: string, data: Prisma.ProdukUpdateInput): Promise<void> {
-    await this.prisma.produk.update({ data, where: { id } });
+  async update(id: string, toko_id: string, data: Prisma.ProdukUpdateInput): Promise<void> {
+    await this.prisma.produk.update({ data, where: { id, toko_id } });
   }
 
-  async remove(id: string): Promise<void> {
-    await this.prisma.produk.delete({ where: { id } });
+  async remove(id: string, toko_id: string): Promise<void> {
+    await this.prisma.produk.delete({ where: { id, toko_id } });
   }
 
-  async detail(id: string): Promise<
+  async detail(
+    id: string,
+    toko_id: string
+  ): Promise<
     | (Produk & {
         kategori: Pick<Kategori, "id" | "nama">;
       })
     | null
   > {
     const res = await this.prisma.produk.findUnique({
-      where: { id },
+      where: { id, toko_id },
       select: {
         ...this.include,
         diskon: {
@@ -137,8 +140,8 @@ export class ProdukRepository {
 
     return res;
   }
-  async listCount(): Promise<number> {
-    const count = await this.prisma.produk.count();
+  async listCount(toko_id: string): Promise<number> {
+    const count = await this.prisma.produk.count({ where: { toko_id } });
     return count;
   }
 }

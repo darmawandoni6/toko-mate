@@ -15,7 +15,9 @@ export class StokController {
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { email } = res.locals;
+      const { email, toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       this.uc.setCreate = req.body;
       const result = await this.uc.create(email);
       res.status(200).json(result);
@@ -25,6 +27,9 @@ export class StokController {
   };
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const query: QueryPage = {
         page: Number(req.query.page),
         pageSize: Number(req.query.pageSize),

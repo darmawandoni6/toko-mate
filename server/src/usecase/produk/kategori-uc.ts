@@ -7,6 +7,7 @@ import { resJson } from "@util/resJson";
 
 export class KategoriUsecase {
   private readonly repo: KategoriRepository;
+  toko_id!: string;
   private data_create!: Prisma.KategoriCreateInput;
   private data_update!: Prisma.KategoriUpdateInput;
 
@@ -44,6 +45,7 @@ export class KategoriUsecase {
     this.data_create = {
       nama: data.nama,
       status: true,
+      toko_id: this.toko_id,
     };
   }
 
@@ -61,15 +63,15 @@ export class KategoriUsecase {
     return this.result();
   }
   async update(id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo.update(id, this.data_update);
+    await this.repo.update(id, this.toko_id, this.data_update);
     return this.result();
   }
   async remove(id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo.remove(id);
+    await this.repo.remove(id, this.toko_id);
     return this.result();
   }
   async list(): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo.list();
+    const res = await this.repo.list(this.toko_id);
     return this.result(res);
   }
 }

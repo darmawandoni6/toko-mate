@@ -12,17 +12,17 @@ export class KategoriRepository {
       data,
     });
   }
-  async update(id: string, data: Prisma.KategoriUpdateInput): Promise<void> {
+  async update(id: string, toko_id: string, data: Prisma.KategoriUpdateInput): Promise<void> {
     await this.prisma.kategori.update({
       data,
-      where: { id },
+      where: { id, toko_id },
     });
   }
-  async list(): Promise<Kategori[]> {
-    const res = await this.prisma.kategori.findMany();
+  async list(toko_id: string): Promise<Kategori[]> {
+    const res = await this.prisma.kategori.findMany({ where: { toko_id } });
     return res;
   }
-  async remove(id: string): Promise<void> {
-    await this.prisma.kategori.delete({ where: { id } });
+  async remove(id: string, toko_id: string): Promise<void> {
+    await this.prisma.kategori.delete({ where: { id, toko_id } });
   }
 }

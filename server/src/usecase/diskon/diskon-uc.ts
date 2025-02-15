@@ -9,6 +9,7 @@ import { QueryPage } from "./types";
 
 export class DiskonUsecase {
   private readonly repo: DiskonRepository;
+  toko_id!: string;
   private data_create!: Prisma.DiskonCreateInput;
   private data_update!: Prisma.DiskonCreateInput;
 
@@ -49,6 +50,7 @@ export class DiskonUsecase {
       value: data.value,
       start_diskon: new Date(data.start_diskon),
       end_diskon: data.end_diskon ? new Date(data.end_diskon) : null,
+      toko_id: this.toko_id,
     };
   }
   set dataUpdate(payload: Diskon) {
@@ -60,6 +62,7 @@ export class DiskonUsecase {
       start_diskon: new Date(data.start_diskon),
       end_diskon: data.end_diskon ? new Date(data.end_diskon) : null,
       status: typeof data.status === "boolean" ? data.status : true,
+      toko_id: this.toko_id,
     };
   }
 
@@ -68,26 +71,26 @@ export class DiskonUsecase {
     return this.result();
   }
   async update(id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo.update(id, this.data_update);
+    await this.repo.update(id, this.toko_id, this.data_update);
     return this.result();
   }
   async detail(id: string): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo.detail(id);
+    const res = await this.repo.detail(id, this.toko_id);
     if (!res) {
       throw createHttpError.NotFound();
     }
     return this.result(res);
   }
   async remove(id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo.remove(id);
+    await this.repo.remove(id, this.toko_id);
     return this.result();
   }
   async list(query: QueryPage): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo.list(query);
+    const res = await this.repo.list(query, this.toko_id);
     return this.result(res);
   }
   async listOption(): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo.listAll(true);
+    const res = await this.repo.listAll(true, this.toko_id);
     return this.result(res);
   }
 }

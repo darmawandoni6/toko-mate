@@ -14,6 +14,9 @@ export class ProdukController {
   }
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       this.uc.dataCreate = req.body;
       const result = await this.uc.create();
       res.status(200).json(result);
@@ -23,6 +26,9 @@ export class ProdukController {
   };
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       this.uc.dataUpdate = req.body;
       const result = await this.uc.update(req.params.id);
       res.status(200).json(result);
@@ -32,6 +38,9 @@ export class ProdukController {
   };
   remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const result = await this.uc.remove(req.params.id);
       res.status(200).json(result);
     } catch (error) {
@@ -40,6 +49,9 @@ export class ProdukController {
   };
   detail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const result = await this.uc.detail(req.params.id);
       res.status(200).json(result);
     } catch (error) {
@@ -48,6 +60,9 @@ export class ProdukController {
   };
   detailSearch = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       this.uc.dataDetail = req.body;
       const result = await this.uc.detailWithoutId();
       res.status(200).json(result);
@@ -57,6 +72,9 @@ export class ProdukController {
   };
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { toko_id } = res.locals;
+      this.uc.toko_id = toko_id;
+
       const query: ListQuery = {
         ...req.query,
         page: Number(req.query.page),

@@ -10,6 +10,7 @@ import { ListQuery } from "./types";
 
 export class ProdukUsecase {
   private readonly repo: ProdukRepository;
+  toko_id!: string;
   private data_create!: Prisma.ProdukUncheckedCreateInput;
   private data_update!: Prisma.ProdukUncheckedUpdateInput;
   private data_detail!: { search: string };
@@ -65,6 +66,7 @@ export class ProdukUsecase {
   set dataCreate(payload: Produk) {
     const data = this.validate(this.validationSchemas.create, payload);
     this.data_create = data;
+    this.data_create.toko_id = this.toko_id;
   }
   set dataUpdate(payload: Produk) {
     const data = this.validate(this.validationSchemas.update, payload);
@@ -80,19 +82,20 @@ export class ProdukUsecase {
     return this.result();
   }
   async update(id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo.update(id, this.data_update);
+    await this.repo.update(id, this.toko_id, this.data_update);
     return this.result();
   }
   async remove(id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo.remove(id);
+    await this.repo.remove(id, this.toko_id);
     return this.result();
   }
   async detail(id: string): Promise<ReturnType<typeof this.result>> {
-    const result = await this.repo.detail(id);
+    const result = await this.repo.detail(id, this.toko_id);
     return this.result(result);
   }
   async detailWithoutId(): Promise<ReturnType<typeof this.result>> {
     const result = await this.repo.detailWithoutId({
+      toko_id: this.toko_id,
       OR: [
         {
           barcode: this.data_detail.search,
@@ -110,7 +113,7 @@ export class ProdukUsecase {
 
   async list(query: ListQuery): Promise<ReturnType<typeof this.result>> {
     const payload = this.validate(this.validationSchemas.list, query);
-    const where: Prisma.ProdukWhereInput = {};
+    const where: Prisma.ProdukWhereInput = { toko_id: this.toko_id };
     if (payload.search) {
       where.OR = [
         {
@@ -129,7 +132,7 @@ export class ProdukUsecase {
     }
 
     const result = await this.repo.list(payload.page, payload.pageSize, where);
-    const count = await this.repo.listCount();
+    const count = await this.repo.listCount(this.toko_id);
     const pagination: Pagination = {
       page: payload.page,
       limit: payload.pageSize,
