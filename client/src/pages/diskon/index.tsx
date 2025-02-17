@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { PropagateLoader } from 'react-spinners';
 
+import Header from '../../components/header';
 import ScrollElement from '../../components/scroll-element';
 import { createDiskon, listDiskon, removeDiskon, updateDiskon } from '../../repository/diskon';
 import { DiskonAPI, DiskonPayload } from '../../repository/diskon/types';
@@ -77,7 +78,6 @@ function Diskon() {
 
   const removeList = async (id: string) => {
     clearTimeout(time);
-    console.log('removeDiskon', time);
     time = setTimeout(async () => {
       await removeDiskon(id);
       await fetchDiskon(1);
@@ -92,7 +92,9 @@ function Diskon() {
   return (
     <div className="flex flex-col gap-2">
       <FormDiskon show={show} setShow={() => setShow(false)} submit={onSubmit} row={item} />
-      <header className="h-12 border-b flex items-center px-2 gap-2">
+      <Header title="Diskon" />
+
+      <section className="h-12 border-b flex items-center px-2 gap-2">
         <div className="border flex-auto overflow-hidden h-8 rounded-full">
           <input
             type="text"
@@ -105,7 +107,7 @@ function Diskon() {
         <button className="h-8 aspect-square shrink-0" onClick={() => setShow(true)}>
           <i className="fa-solid fa-plus"></i>
         </button>
-      </header>
+      </section>
       <ScrollElement
         next={() => fetchDiskon(diskon.page + 1)}
         loader={

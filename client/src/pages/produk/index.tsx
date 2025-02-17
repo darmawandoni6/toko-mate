@@ -172,7 +172,17 @@ const Produk = () => {
               index={i}
             >
               <div className="h-36 flex bg-gray-300">
-                <i className="fa-regular fa-image m-auto text-5 xl"></i>
+                {item.image ? (
+                  <img
+                    src={`http://localhost:4000/${item.image}`}
+                    alt={item.nama}
+                    width={144}
+                    height={144}
+                    className="aspect-square object-fill m-auto"
+                  />
+                ) : (
+                  <i className="fa-regular fa-image m-auto text-5 xl"></i>
+                )}
               </div>
               <div className="px-2 h-20 flex flex-col justify-center">
                 <p className="ellipsis-2 text-xs mb-1 capitalize">{item.nama}</p>

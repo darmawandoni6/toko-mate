@@ -44,6 +44,8 @@ class App {
       res.send({ message: this.message });
     });
 
+    this.app.use("/uploads", express.static("uploads"));
+
     const auth = new AuthRouter(prisma);
     this.app.use("/api-v1", auth.route);
 

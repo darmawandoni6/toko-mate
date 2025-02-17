@@ -1,10 +1,13 @@
 import express from "express";
 
+import multer from "multer";
+
 import { KategoriController } from "@controller/produk/kategori-controller";
 import { ProdukController } from "@controller/produk/produk-controller";
 import { StokController } from "@controller/produk/stok-controller";
 import { authorized } from "@middleware/authorized";
 import { PrismaClient } from "@prisma/client";
+import { diskStorage, fileFilter } from "@util/multer";
 
 export class ProdukRouter {
   private readonly c_kategori: KategoriController;
@@ -34,6 +37,8 @@ export class ProdukRouter {
 
     router.get("/produk-stok", authorized, this.c_stok.list);
     router.post("/produk-stok", authorized, this.c_stok.create);
+
+    router.post("/produk-file/:id", authorized, this.c_produk.updateImage);
 
     return router;
   }

@@ -40,20 +40,13 @@ export class StokRepository {
       where: { toko_id },
       skip,
       take,
-      select: {
-        id: true,
-        produk_id: true,
-        email: true,
-        qty: true,
-        deskripsi: true,
-        mark: true,
-        created_at: true,
-        updated_at: true,
+      include: {
         produk: {
           select: {
             id: true,
             barcode: true,
             nama: true,
+            image: true,
             harga_beli: true,
             harga_jual: true,
           },

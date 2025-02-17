@@ -1,3 +1,5 @@
+import { ProdukAPI } from '../produk/types';
+
 export interface TransaksiQuey {
   page: number;
   pageSize: number;
@@ -21,6 +23,7 @@ export interface TransaksiDetailAPI {
   created_at: Date;
   updated_at: Date;
   produk_id: string;
+  produk: ProdukAPI;
   qty: number;
   sub_total: number;
   diskon_id: string;

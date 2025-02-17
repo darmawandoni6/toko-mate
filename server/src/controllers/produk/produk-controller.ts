@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 
+import multer from "multer";
+
 import { PrismaClient } from "@prisma/client";
 import { ProdukRepository } from "@repository/produk/produk-repo";
 import { ProdukUsecase } from "@usecase/produk/produk-uc";
 import { ListQuery } from "@usecase/produk/types";
+import { diskStorage, fileFilter } from "@util/multer";
 
 export class ProdukController {
   private readonly uc: ProdukUsecase;
@@ -86,5 +89,27 @@ export class ProdukController {
     } catch (error) {
       next(error);
     }
+  };
+  updateImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    multer({ storage: diskStorage, fileFilter, limits: { fieldSize: 2 * 1024 * 1024 } }).single("produk")(
+      req,
+      res,
+      async (err) => {
+        try {
+          if (err) {
+            throw err;
+          }
+
+          const { toko_id } = res.locals;
+          this.uc.toko_id = toko_id;
+
+          const file = this.uc.validateImage(req.file);
+          const result = await this.uc.updateImage(req.params.id, file.path);
+          res.status(200).json(result);
+        } catch (error) {
+          next(error);
+        }
+      }
+    );
   };
 }

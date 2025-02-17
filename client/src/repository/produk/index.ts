@@ -44,3 +44,12 @@ export const removeProduk = async (id: string) => {
   await http.DELETE(`/produk/${id}`);
   toast.success('success hapus produk');
 };
+
+export const uploadFile = async (id: string, file: FormData) => {
+  const res = await fetch(`http://localhost:4000/api-v1/produk-file/${id}`, {
+    method: 'POST',
+    body: file,
+    credentials: 'include',
+  });
+  console.log(res);
+};

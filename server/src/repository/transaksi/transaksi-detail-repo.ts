@@ -7,7 +7,16 @@ export class TransaksiDetailRepository {
     this.prisma = prisma;
   }
   async list(transaksi_id: string, toko_id: string): Promise<Transaksi_Detail[]> {
-    const res = await this.prisma.transaksi_Detail.findMany({ where: { transaksi_id, toko_id } });
+    const res = await this.prisma.transaksi_Detail.findMany({
+      where: { transaksi_id, toko_id },
+      include: {
+        produk: {
+          select: {
+            image: true,
+          },
+        },
+      },
+    });
     return res;
   }
 

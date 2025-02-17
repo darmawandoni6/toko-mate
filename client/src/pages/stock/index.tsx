@@ -105,7 +105,17 @@ function Stock() {
             <ScrollElement.Body index={i} className="flex gap-2 items-start " key={i}>
               <div className="border rounded-lg p-1 flex gap-3 flex-auto overflow-hidden">
                 <div className="h-16 aspect-square flex bg-gray-300 rounded-lg">
-                  <i className="fa-regular fa-image m-auto text-5 xl"></i>
+                  {item.produk.image ? (
+                    <img
+                      src={`http://localhost:4000/${item.produk.image}`}
+                      alt={item.produk.nama}
+                      height={64}
+                      width={64}
+                      className="aspect-square max-w-full max-h-16 object-cover m-auto"
+                    />
+                  ) : (
+                    <i className="fa-regular fa-image m-auto text-5 xl"></i>
+                  )}
                 </div>
                 <div className="flex-auto overflow-hidden flex flex-col gap-1">
                   <p className="text-base font-bold truncate">{item.produk.nama}</p>

@@ -71,7 +71,17 @@ const Keranjang: FC<Props> = ({ show, setShow, produk, addItem, transaksi_id }) 
       <Modal.Body>
         <div className="flex gap-2 items-center mb-2">
           <div className="h-12 w-12 bg-gray-300 rounded flex">
-            <i className="fa-regular fa-image m-auto text-xl"></i>
+            {produk.image ? (
+              <img
+                src={`http://localhost:4000/${produk.image}`}
+                alt={produk.nama}
+                height={48}
+                width={48}
+                className="aspect-square max-w-full max-h-12 object-cover m-auto"
+              />
+            ) : (
+              <i className="fa-regular fa-image m-auto text-xl"></i>
+            )}
           </div>
           <h1 className="flex-1 overflow-hidden ellipsis-2 text-base font-bold">{produk.nama}</h1>
         </div>

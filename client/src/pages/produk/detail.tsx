@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 import { useParams } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ import { AllListDiskon } from '../../repository/diskon';
 import { DiskonAPI } from '../../repository/diskon/types';
 import { listKategori } from '../../repository/kategori';
 import { KategoriAPI } from '../../repository/kategori/types';
-import { detailProduk, updateProduk, updateStatus } from '../../repository/produk';
+import { detailProduk, updateProduk, updateStatus, uploadFile } from '../../repository/produk';
 import { ProdukAPI, ProdukForm, ProdukPayload } from '../../repository/produk/types';
 import { currency, toNumber } from '../../utils/number';
 import List from './_components/list';
@@ -80,6 +80,14 @@ const ProdukDetail = () => {
     }
   };
 
+  const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const frm = new FormData();
+    frm.append('produk', e.target.files[0]);
+
+    await uploadFile(row!.id, frm);
+  };
+
   return (
     <>
       <Header title="Detail Produk">
@@ -94,9 +102,20 @@ const ProdukDetail = () => {
           <List label="Barcode" value={row.barcode} />
           <List label="Barcode" value={row.nama} />
           <div className="flex items-center border-b p-2">
-            <div className="h-36 aspect-square flex bg-gray-300 rounded-lg">
-              <i className="fa-regular fa-image m-auto text-5 xl"></i>
-            </div>
+            <label htmlFor="file" className="h-36 aspect-square flex bg-gray-300 rounded-lg">
+              {row.image ? (
+                <img
+                  src={`http://localhost:4000/${row.image}`}
+                  alt={row.nama}
+                  width={144}
+                  height={144}
+                  className="aspect-square object-cover"
+                />
+              ) : (
+                <i className="fa-regular fa-image m-auto text-5 xl"></i>
+              )}
+            </label>
+            <input className="hidden" id="file" type="file" onChange={onFile} />
           </div>
           <List label="Kategori" className="capitalize" value={row.kategori.nama} />
           <List label="Harga Beli" value={currency(row.harga_beli)} />

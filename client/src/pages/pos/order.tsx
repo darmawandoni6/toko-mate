@@ -97,8 +97,18 @@ function PostOrder() {
           {items.map((item, i) => (
             <div className="flex gap-2  items-start" key={i}>
               <div className="border rounded-lg p-1 w-full flex gap-3 overflow-x-hidden">
-                <div className="h-16 flex shrink-0 aspect-square bg-gray-300 rounded-lg ">
-                  <i className="fa-regular fa-image m-auto text-5 xl"></i>
+                <div className="h-16 flex shrink-0 aspect-square bg-gray-300 rounded-lg overflow-hidden">
+                  {item.produk.image ? (
+                    <img
+                      src={`http://localhost:4000/${item.produk.image}`}
+                      alt={item.produk_nama}
+                      height={64}
+                      width={64}
+                      className="aspect-square max-w-full max-h-16 object-cover m-auto"
+                    />
+                  ) : (
+                    <i className="fa-regular fa-image m-auto text-5 xl"></i>
+                  )}
                 </div>
 
                 <div className="flex-1 overflow-hidden flex flex-col gap-4">

@@ -141,4 +141,15 @@ export class ProdukUsecase {
     };
     return this.result(result, pagination);
   }
+
+  validateImage(file?: Express.Multer.File) {
+    if (!file) {
+      return createHttpError.BadRequest("Invalid file type or no file uploaded!");
+    }
+    return file;
+  }
+  async updateImage(id: string, image: string) {
+    await this.repo.update(id, this.toko_id, { image });
+    return this.result();
+  }
 }
