@@ -12,7 +12,7 @@ const Login = lazy(() => import('./pages/login'));
 const Register = lazy(() => import('./pages/register'));
 
 createRoot(document.getElementById('root')!).render(
-  <main className="h-screen w-[480px] max-w-full mx-auto flex flex-col">
+  <main className="h-dvh w-[480px] max-w-full mx-auto flex flex-col">
     <BrowserRouter>
       <Routes>
         <Route element={<Login />} path="/login" />

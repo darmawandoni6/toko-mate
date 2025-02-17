@@ -37,7 +37,7 @@ const Footer = () => {
           </button>
         </div>
 
-        <button className="flex-auto flex flex-col gap-1 justify-center items-center">
+        <button className="flex-auto flex flex-col gap-1 justify-center items-center" onClick={() => navigate('/pos')}>
           <i className="fa-solid fa-cart-shopping"></i> <span className="text-xs">Keranjang</span>
         </button>
       </div>
