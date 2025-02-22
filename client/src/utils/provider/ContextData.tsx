@@ -1,21 +1,23 @@
-import { ReactNode, useMemo, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ReactNode, useMemo, useReducer } from 'react';
 
+import { reducerProfile } from './action/profile';
 import { Context, initialState } from './initialState';
-import { InitContext, InitialState } from './types';
+import { Action, InitContext, InitialState } from './types';
 
 function ContextData({ children }: Readonly<{ children: ReactNode }>) {
-  const [s, setS] = useState<InitialState>(initialState);
+  const rootReducer = (state: InitialState, action: Action<any>) => ({
+    ...reducerProfile(state, action),
+  });
 
-  const onValue = (state: Partial<InitialState>): void => {
-    setS(prev => ({ ...prev, ...state }));
-  };
+  const [state, dispatch] = useReducer(rootReducer, initialState);
 
   const value: InitContext = useMemo(
     () => ({
-      value: s,
-      setValue: onValue,
+      value: state,
+      dispatch,
     }),
-    [s],
+    [state],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

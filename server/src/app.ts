@@ -27,7 +27,7 @@ class App {
   init(): void {
     this.app.use(
       cors({
-        origin: "http://localhost:5173", // Frontend URL
+        origin: ["http://localhost:5173", "https://z8gvcb8g-5173.asse.devtunnels.ms"], // Frontend URL
         credentials: true, // Allow credentials (cookies)
       })
     );
@@ -45,6 +45,15 @@ class App {
     });
 
     this.app.use("/uploads", express.static("uploads"));
+
+    this.app.use(async (req, res, next) => {
+      await new Promise<void>((res) => {
+        setTimeout(() => {
+          res();
+        }, 2000);
+      });
+      next();
+    });
 
     const auth = new AuthRouter(prisma);
     this.app.use("/api-v1", auth.route);

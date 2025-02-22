@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Header from '../../components/header';
+import { config } from '../../config/base';
 import { listItem, listTransaksiPending, paymentTransaksi } from '../../repository/transaksi';
 import { TransaksiDetailAPI, TransaksiPaymentPayload } from '../../repository/transaksi/types';
 import { currency } from '../../utils/number';
@@ -84,7 +85,7 @@ function PosCheckout() {
                 <div className="h-16 aspect-square flex bg-gray-300 rounded-lg">
                   {item.produk.image ? (
                     <img
-                      src={`http://localhost:4000/${item.produk.image}`}
+                      src={`${config.baseUrl}/${item.produk.image}`}
                       alt={item.produk_nama}
                       height={64}
                       width={64}

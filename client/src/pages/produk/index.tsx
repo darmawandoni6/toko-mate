@@ -5,6 +5,7 @@ import { PropagateLoader } from 'react-spinners';
 
 import Header from '../../components/header';
 import ScrollElement from '../../components/scroll-element';
+import { config } from '../../config/base';
 import { AllListDiskon } from '../../repository/diskon';
 import { DiskonAPI } from '../../repository/diskon/types';
 import { listKategori } from '../../repository/kategori';
@@ -174,7 +175,7 @@ const Produk = () => {
               <div className="h-36 flex bg-gray-300">
                 {item.image ? (
                   <img
-                    src={`http://localhost:4000/${item.image}`}
+                    src={`${config.baseUrl}/${item.image}`}
                     alt={item.nama}
                     width={144}
                     height={144}

@@ -4,10 +4,10 @@ import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 
 import Footer from '../../components/footer';
-import { ProfileAPI } from '../../repository/auth/types';
 import { transaksiPerHari } from '../../repository/transaksi';
 import { currency } from '../../utils/number';
 import { useGetValue } from '../../utils/provider';
+import { useView } from './useView';
 
 const menu = {
   produk: [
@@ -67,16 +67,16 @@ const menu = {
 const Home = () => {
   const profile = useGetValue(state => state.profile);
   const navigate = useNavigate();
+  const home = useView(profile);
 
-  const [home, setHome] = useState<Pick<ProfileAPI['toko'], 'nama' | 'hp'>>({ hp: '-', nama: '-' });
   const [pendapatan, setPendapatan] = useState<number>(0);
 
   useEffect(() => {
-    if (profile) {
-      setHome({ hp: profile.toko.hp, nama: profile.toko.nama });
+    const { data } = profile;
+    if (data) {
       fetch();
     }
-  }, [profile]);
+  }, [profile.data]);
 
   const fetch = async () => {
     const res = await transaksiPerHari();
@@ -97,10 +97,7 @@ const Home = () => {
             <button className="text-4xl">
               <i className="fa-solid fa-circle-user"></i>
             </button>
-            <div className="flex flex-col">
-              <span className="block text-base font-bold">{home.nama}</span>
-              <span className="text-xs leading-none">{home.hp}</span>
-            </div>
+            <div className="flex flex-col">{home}</div>
           </section>
           <section className="border px-3 py-1 rounded-full bg-red-600 text-white text-sm font-semibold">
             {currency(pendapatan)}
@@ -118,7 +115,7 @@ const Home = () => {
                   key={item.to}
                   onClick={() => navigate(item.to)}
                 >
-                  <i className={clsx(item.icon, 'text-xl mb-2')} />
+                  <i className={clsx(item.icon, 'text-xl mb-1')} />
                   <span className="block font-bold text-xs">{item.name}</span>
                 </button>
               ))}

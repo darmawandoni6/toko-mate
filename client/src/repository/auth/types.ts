@@ -1,3 +1,8 @@
+import { Profile } from '../../utils/provider/action/profile';
+import { Action } from '../../utils/provider/types';
+
+export type ActionProfile = Action<Profile, ProfileAPI | null>;
+
 export interface TokoAPI {
   id: string;
   nama: string;

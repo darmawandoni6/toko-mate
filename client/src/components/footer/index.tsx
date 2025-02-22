@@ -1,19 +1,8 @@
-import { useMemo } from 'react';
-
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
 
-  const split = useMemo(() => {
-    return pathname.split('/');
-  }, [pathname]);
-  const isHide = ['pos', 'login', 'register'].includes(split[1]);
-
-  if (isHide) {
-    return null;
-  }
   return (
     <footer className="sticky bottom-0 mx-auto mt-auto w-full">
       <div
@@ -32,6 +21,7 @@ const Footer = () => {
             style={{
               boxShadow: '0px 0px 6px 0px #e5e7eb',
             }}
+            onClick={() => navigate('/scan')}
           >
             <i className="fa-solid fa-barcode m-auto text-3xl"></i>
           </button>

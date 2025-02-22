@@ -39,7 +39,13 @@ export class ProdukRepository {
   }
 
   async update(id: string, toko_id: string, data: Prisma.ProdukUpdateInput): Promise<void> {
-    await this.prisma.produk.update({ data, where: { id, toko_id } });
+    await this.prisma.produk.update({
+      data,
+      where: {
+        id,
+        toko_id,
+      },
+    });
   }
 
   async remove(id: string, toko_id: string): Promise<void> {
@@ -47,7 +53,7 @@ export class ProdukRepository {
   }
 
   async detail(
-    id: string,
+    idOrBarcode: string,
     toko_id: string
   ): Promise<
     | (Produk & {
@@ -55,10 +61,12 @@ export class ProdukRepository {
       })
     | null
   > {
-    const res = await this.prisma.produk.findUnique({
-      where: { id, toko_id },
-      select: {
-        ...this.include,
+    const res = await this.prisma.produk.findFirst({
+      where: {
+        ...(idOrBarcode.length >= 32 ? { id: idOrBarcode } : { barcode: idOrBarcode }),
+        toko_id,
+      },
+      include: {
         diskon: {
           select: {
             id: true,

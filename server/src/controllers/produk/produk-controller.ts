@@ -103,10 +103,12 @@ export class ProdukController {
           const { toko_id } = res.locals;
           this.uc.toko_id = toko_id;
 
-          const file = this.uc.validateImage(req.file);
+          const file = this.uc.validateImage(req.file, req.body.prev_image);
+
           const result = await this.uc.updateImage(req.params.id, file.path);
           res.status(200).json(result);
         } catch (error) {
+          this.uc.validateImage(undefined, req.body.prev_image);
           next(error);
         }
       }

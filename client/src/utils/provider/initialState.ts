@@ -3,12 +3,15 @@ import { createContext } from 'react';
 import { InitContext, InitialState } from './types';
 
 export const initialState: InitialState = {
-  profile: null,
+  profile: {
+    loading: true,
+    data: null,
+  },
 };
 
 const ctx: InitContext = {
   value: initialState,
-  setValue: (): void => {},
+  dispatch: () => {}, // Dummy function
 };
 
 export const Context = createContext<InitContext>(ctx);

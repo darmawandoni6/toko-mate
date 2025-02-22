@@ -15,12 +15,7 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({
-    defaultValues: {
-      email: 'darmawandoni6',
-      password: 'kiasu123',
-    },
-  });
+  } = useForm<LoginForm>();
 
   const onSubmit: SubmitHandler<LoginForm> = async data => {
     try {

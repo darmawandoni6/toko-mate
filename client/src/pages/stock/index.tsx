@@ -4,6 +4,7 @@ import { PropagateLoader } from 'react-spinners';
 
 import Header from '../../components/header';
 import ScrollElement from '../../components/scroll-element';
+import { config } from '../../config/base';
 import { createStok, listStok } from '../../repository/stock';
 import { StokPayload } from '../../repository/stock/types';
 import { currency } from '../../utils/number';
@@ -107,7 +108,7 @@ function Stock() {
                 <div className="h-16 aspect-square flex bg-gray-300 rounded-lg">
                   {item.produk.image ? (
                     <img
-                      src={`http://localhost:4000/${item.produk.image}`}
+                      src={`${config.baseUrl}/${item.produk.image}`}
                       alt={item.produk.nama}
                       height={64}
                       width={64}

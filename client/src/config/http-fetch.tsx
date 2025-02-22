@@ -1,6 +1,7 @@
 import { toast } from 'react-toastify';
 
 import { ResponseAPI } from '../global-types';
+import { config } from './base';
 
 export class HttpFetch {
   readonly baseUrl: string;
@@ -21,7 +22,7 @@ export class HttpFetch {
   }
 
   static init() {
-    const http = new HttpFetch('http://localhost:4000/api-v1');
+    const http = new HttpFetch(`${config.baseUrl}/api-v1`);
     return http;
   }
 
@@ -59,11 +60,19 @@ export class HttpFetch {
 
     return data;
   }
-  async POST<R, P>(url: string, payload: P): Promise<R | null> {
+  async POST<R, P>(
+    url: string,
+    payload: P,
+    options: Pick<RequestInit, 'headers'> & { json?: boolean } = { json: true },
+  ): Promise<R | null> {
     this.option = {
       method: 'POST',
-      body: JSON.stringify(payload),
+      ...(payload ? { body: options.json ? JSON.stringify(payload) : (payload as BodyInit) } : {}),
     };
+    if (options.headers) {
+      this.option.headers = options.headers;
+    }
+
     this.init = { ...this.init, ...this.option };
     const { data } = await this.request<R>(url);
     return data;

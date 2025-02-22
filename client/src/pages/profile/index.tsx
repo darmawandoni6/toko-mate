@@ -3,12 +3,12 @@ import { useState } from 'react';
 import Footer from '../../components/footer';
 import { getProfile, updateProfile } from '../../repository/auth';
 import { ProfilePayload } from '../../repository/auth/types';
-import { useGetValue, useSetValue } from '../../utils/provider';
+import { useDispatch, useGetValue } from '../../utils/provider';
 import FormProfile from './form-profile';
 
 function Profil() {
-  const profile = useGetValue(state => state.profile);
-  const setValue = useSetValue();
+  const profile = useGetValue(state => state.profile.data);
+  const dispatch = useDispatch();
 
   const [show, setShow] = useState<boolean>(false);
 
@@ -17,8 +17,7 @@ function Profil() {
   const onSubmit = async (payload: ProfilePayload) => {
     await updateProfile(payload);
 
-    const data = await getProfile();
-    setValue({ profile: data });
+    dispatch(getProfile());
   };
 
   return (

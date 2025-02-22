@@ -129,7 +129,12 @@ export class AuthUsecase {
     const expired = new Date(); // Now
     expired.setDate(expired.getDate() + parseInt(process.env.EXP_TOKEN as string, 10));
 
-    res.cookie("token", token, { httpOnly: true, expires: expired });
+    res.cookie("token", token, {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      httpOnly: true,
+      expires: expired,
+    });
     return this.result({ token, expired });
   }
 

@@ -4,7 +4,8 @@
   "description": "Membuat aplikasi yang memungkinkan banyak toko untuk mengelola produk, penjualan, dan performa toko dengan fitur analitik dan pencatatan otomatis.",
   "main": "dist/main.js",
   "scripts": {
-    "dev": "nodemon src/server.ts",
+    "dev": "NODE_ENV=development nodemon src/server.ts",
+    "start": "NODE_ENV=production nodemon src/server.ts",
     "sync": "ts-node src/models/sync.ts",
     "build": "rm -rf dist && tsc && tsc-alias"
   },

@@ -45,11 +45,12 @@ export const removeProduk = async (id: string) => {
   toast.success('success hapus produk');
 };
 
-export const uploadFile = async (id: string, file: FormData) => {
-  const res = await fetch(`http://localhost:4000/api-v1/produk-file/${id}`, {
-    method: 'POST',
-    body: file,
-    credentials: 'include',
-  });
-  console.log(res);
+export const uploadFile = async (id: string, file: FormData): Promise<string> => {
+  try {
+    await http.POST(`/produk-file/${id}`, file, { json: false, headers: undefined });
+    toast.success('success ubah image');
+    return '';
+  } catch (error) {
+    return (error as Error).message;
+  }
 };

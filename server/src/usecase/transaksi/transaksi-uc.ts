@@ -367,7 +367,6 @@ export class TransaksiUsecase {
     const lte = we;
 
     const result = await this.repo_transaksi.getTransaksi(this.toko_id, gte, lte);
-    console.log({ result });
 
     const revenueOfWeek = {
       thisWeek: 0,
@@ -400,11 +399,8 @@ export class TransaksiUsecase {
       const idx = weeks.findIndex((item) => ut >= new Date(item.start) && new Date(item.end) >= ut);
       const prev = weekRevenue[idx] ?? 0;
       weekRevenue[idx] = prev + Number(v.total);
-      console.log({ ut, thisWeek, r: ut >= new Date(thisWeek.start), e: new Date(thisWeek.end) >= ut });
 
       if (ut >= new Date(thisWeek.start) && new Date(thisWeek.end) >= ut) {
-        console.log({ v });
-
         revenueOfWeek.thisWeek += Number(v.total);
         continue;
       }

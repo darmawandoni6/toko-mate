@@ -61,7 +61,6 @@ function Diskon() {
 
   const updateStatus = async (item: DiskonAPI) => {
     clearTimeout(time);
-    console.log('updateStatus', time);
 
     time = setTimeout(async () => {
       await updateDiskon(item.id, {

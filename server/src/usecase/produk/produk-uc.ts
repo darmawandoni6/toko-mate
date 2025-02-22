@@ -1,3 +1,4 @@
+import fs from "fs";
 import createHttpError from "http-errors";
 import Joi from "joi";
 import { Pagination } from "src/global";
@@ -142,9 +143,13 @@ export class ProdukUsecase {
     return this.result(result, pagination);
   }
 
-  validateImage(file?: Express.Multer.File) {
+  validateImage(file?: Express.Multer.File, prevImage?: string) {
     if (!file) {
       return createHttpError.BadRequest("Invalid file type or no file uploaded!");
+    }
+
+    if (prevImage && fs.existsSync(prevImage)) {
+      fs.unlinkSync(prevImage);
     }
     return file;
   }

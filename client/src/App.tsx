@@ -3,7 +3,7 @@ import { lazy, useEffect } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 
 import { getProfile } from './repository/auth';
-import { useSetValue } from './utils/provider';
+import { useDispatch } from './utils/provider';
 
 const Home = lazy(() => import('./pages/home'));
 const Produk = lazy(() => import('./pages/produk'));
@@ -17,19 +17,19 @@ const Stock = lazy(() => import('./pages/stock'));
 const Report = lazy(() => import('./pages/report'));
 const Transaksi = lazy(() => import('./pages/transaksi'));
 const Profile = lazy(() => import('./pages/profile'));
+const Scan = lazy(() => import('./pages/scan'));
 
 const App = () => {
-  const setValue = useSetValue();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetch = async () => {
-      const data = await getProfile();
+      const data = await dispatch(getProfile());
       if (!data) {
         navigate(-1);
         return;
       }
-      setValue({ profile: data });
     };
 
     fetch();
@@ -50,6 +50,7 @@ const App = () => {
         <Route element={<Report />} path="/report" />
         <Route element={<Transaksi />} path="/transaksi" />
         <Route element={<Profile />} path="/profil" />
+        <Route element={<Scan />} path="/scan" />
       </Routes>
     </>
   );

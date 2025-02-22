@@ -6,6 +6,7 @@ import { PropagateLoader } from 'react-spinners';
 
 import Header from '../../components/header';
 import ScrollElement from '../../components/scroll-element';
+import { config } from '../../config/base';
 import { listKategori } from '../../repository/kategori';
 import { listProduk } from '../../repository/produk';
 import { QueryProduk } from '../../repository/produk/types';
@@ -189,7 +190,7 @@ function POS() {
                   <div className="h-16 aspect-square flex bg-gray-300 rounded-lg overflow-hidden">
                     {item.nama ? (
                       <img
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${config.baseUrl}/${item.image}`}
                         alt={item.nama}
                         height={64}
                         width={64}

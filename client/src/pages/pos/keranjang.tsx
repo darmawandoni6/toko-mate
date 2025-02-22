@@ -1,6 +1,7 @@
 import { FC, useMemo, useState } from 'react';
 
 import Modal from '../../components/modal';
+import { config } from '../../config/base';
 import { ProdukAPI } from '../../repository/produk/types';
 import { TransaksiItemPayload } from '../../repository/transaksi/types';
 import { currency } from '../../utils/number';
@@ -73,7 +74,7 @@ const Keranjang: FC<Props> = ({ show, setShow, produk, addItem, transaksi_id }) 
           <div className="h-12 w-12 bg-gray-300 rounded flex">
             {produk.image ? (
               <img
-                src={`http://localhost:4000/${produk.image}`}
+                src={`${config.baseUrl}/${produk.image}`}
                 alt={produk.nama}
                 height={48}
                 width={48}
