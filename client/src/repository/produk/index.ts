@@ -22,8 +22,15 @@ export const detailProduk = async (id: string) => {
 };
 
 export const searchProduk = async (payload: { search: string }) => {
-  const res: ProdukAPI | null = await http.POST('/produk-search', payload);
-  return res;
+  try {
+    const res: ProdukAPI | null = await http.POST('/produk-search', payload);
+    if (!res) {
+      toast.error('Data tidak ditemukan');
+    }
+    return res;
+  } catch {
+    return null;
+  }
 };
 
 export const createProduk = async (payload: ProdukPayload) => {

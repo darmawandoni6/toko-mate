@@ -54,7 +54,7 @@ function Report() {
       <Header title="Report" />
       <div className="flex flex-col gap-2 p-2 mb-10">
         <section className="p-2 rounded-md bg-white border">
-          <h1 className="text-base font-bold mb-2 capitalize">{`Hello, ${profile.nama}`}</h1>
+          <h1 className="text-base font-bold mb-2 capitalize">{`Hello, ${profile.data?.nama ?? '-'}`}</h1>
           <FormInput id="date">
             <input
               type="date"

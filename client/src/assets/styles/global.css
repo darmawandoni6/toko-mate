@@ -11,9 +11,6 @@
     @apply font-nunito text-base font-normal text-[#67748E] accent-primary;
   }
 
-  .form-container {
-    @apply mb-2;
-  }
   .form-container > input:not([type='checkbox']),
   .form-container > select,
   .form-container > textarea {

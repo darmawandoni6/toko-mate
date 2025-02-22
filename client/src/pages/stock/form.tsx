@@ -13,9 +13,10 @@ interface Props {
   show: boolean;
   setShow: VoidFunction;
   setSubmit: (payload: StokPayload) => Promise<void>;
+  increment: boolean;
 }
 
-const Form: FC<Props> = ({ show, setShow, setSubmit }) => {
+const Form: FC<Props> = ({ show, setShow, setSubmit, increment }) => {
   const [loading, setLoading] = useState(false);
   const [check, setCheck] = useState(false);
 
@@ -62,13 +63,17 @@ const Form: FC<Props> = ({ show, setShow, setSubmit }) => {
     resetField('harga_jual');
 
     if (!v) return;
-
-    const res = await searchProduk({ search: v });
-    if (res) {
-      setCheck(true);
-      setValue('produk_id', res.id);
-      setValue('harga_beli', thousandSeparator(res.harga_beli.toString()));
-      setValue('harga_jual', thousandSeparator(res.harga_jual.toString()));
+    try {
+      setLoading(true);
+      const res = await searchProduk({ search: v });
+      if (res) {
+        setCheck(true);
+        setValue('produk_id', res.id);
+        setValue('harga_beli', thousandSeparator(res.harga_beli.toString()));
+        setValue('harga_jual', thousandSeparator(res.harga_jual.toString()));
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,11 +86,11 @@ const Form: FC<Props> = ({ show, setShow, setSubmit }) => {
 
   return (
     <Modal show={show} setShow={handleClose}>
-      <Modal.Header title="Update Stock" />
+      <Modal.Header title={increment ? 'Penambahan Stock' : 'Pengurangan Stock'} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Modal.Body>
           <FormInput id="search" label="Produk" message={errors.search?.message}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 form-container">
               <input
                 type="text"
                 placeholder="input nominal"
@@ -96,7 +101,7 @@ const Form: FC<Props> = ({ show, setShow, setSubmit }) => {
               <button
                 className="rounded w-7  h-7 shrink-0 bg-primary text-white"
                 type="button"
-                disabled={!getValues('search')}
+                disabled={!getValues('search') || loading}
                 onClick={findProduk}
               >
                 <i className="fa-solid fa-check"></i>

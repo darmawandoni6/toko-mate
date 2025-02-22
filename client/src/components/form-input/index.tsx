@@ -9,7 +9,7 @@ interface Props {
 
 const FormInput: FC<Props> = ({ children, message, label, id }) => {
   return (
-    <div className="form-container">
+    <div className="form-container mb-2">
       {label && (
         <label htmlFor={id} className="text-xs mb-1">
           {label}

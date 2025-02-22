@@ -69,7 +69,7 @@ function Stock() {
   };
   return (
     <div className="flex flex-col">
-      <Form show={stok.form} setShow={onClose} setSubmit={onSubmit} />
+      <Form show={stok.form} increment={stok.increment} setShow={onClose} setSubmit={onSubmit} />
 
       <Header title="Stock" />
 

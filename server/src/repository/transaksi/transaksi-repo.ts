@@ -25,7 +25,7 @@ export class TransaksiRepository {
       for (const v of stocks) {
         await trx.stok.create({
           data: {
-            qty: v.qty,
+            qty: v.qty * -1,
             deskripsi: `transaksi: ${data.no_faktur} by: ${data.updated_by}`,
             produk_id: v.produk_id,
             mark: "TRANSAKSI",

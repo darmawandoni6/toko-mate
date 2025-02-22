@@ -20,7 +20,7 @@ interface Props {
   to?: string;
 }
 const Receipt: FC<Props> = ({ show, setShow, items, calculate, transaksi, to }) => {
-  const profile = useGetValue(state => state.profile);
+  const profile = useGetValue(state => state.profile.data);
   const navigate = useNavigate();
 
   if (!profile) return;
