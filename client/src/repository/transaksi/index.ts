@@ -49,9 +49,12 @@ export const paymentTransaksi = async (id: string, payload: TransaksiPaymentPayl
 };
 
 export const listItem = async (transaksi_id: string): Promise<TransaksiDetailAPI[]> => {
-  const res: TransaksiDetailAPI[] | null = await http.GET(`/transaksi-detail/${transaksi_id}`);
-  if (!res) return [];
-  return res;
+  try {
+    const res: TransaksiDetailAPI[] = await http.GET(`/transaksi-detail/${transaksi_id}`);
+    return res;
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };
 
 export const addItem = async (payload: TransaksiItemPayload): Promise<void> => {

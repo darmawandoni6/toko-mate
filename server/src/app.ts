@@ -48,9 +48,11 @@ class App {
 
     this.app.use(async (req, res, next) => {
       await new Promise<void>((res) => {
+        const random = Math.floor(Math.random() * (2 - 0 + 1)) + 0;
+
         setTimeout(() => {
           res();
-        }, 2000);
+        }, random * 1000);
       });
       next();
     });

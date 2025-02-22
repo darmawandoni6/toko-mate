@@ -26,7 +26,7 @@ const Alert: FC<Props> = ({ show, onReceipt }) => {
           </button>
           <button
             className="border border-primary text-primary w-1/2 py-2 rounded font-semibold"
-            onClick={() => navigate('/pos')}
+            onClick={() => navigate('/pos', { replace: true })}
           >
             Close
           </button>

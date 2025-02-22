@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { PropagateLoader } from 'react-spinners';
 
+import BottomSheet from '../../components/bottom-sheet';
 import Header from '../../components/header';
 import ScrollElement from '../../components/scroll-element';
 import { config } from '../../config/base';
@@ -15,10 +16,12 @@ import { TransaksiItemPayload } from '../../repository/transaksi/types';
 import { currency } from '../../utils/number';
 import { calculationDiskon } from '../produk/utils';
 import Keranjang from './keranjang';
+import ScanBarcode from './scan-barcode';
 import { ProdukView, TransaksiView, kategoriView } from './types';
 
 function POS() {
   const navigate = useNavigate();
+  const refSearch = useRef<HTMLInputElement | null>(null);
 
   const [kategori, setKategori] = useState<kategoriView>({ list: [], active: 'semua' });
   const [produk, setProduk] = useState<ProdukView>({
@@ -29,21 +32,44 @@ function POS() {
     last: false,
     form: false,
   });
-  const [transaksi, setTransaksi] = useState<TransaksiView>({ trx_id: '', item: [], keranjang: null, count: 0 });
+  const [transaksi, setTransaksi] = useState<TransaksiView>({
+    trx_id: '',
+    item: [],
+    keranjang: null,
+    count: 0,
+    mockItem: [],
+  });
+  const [barcode, setBarcode] = useState<boolean>(false);
 
   useEffect(() => {
     fetchAll();
   }, []);
 
   const fetchAll = async () => {
-    const k = await listKategori();
-    setKategori(prev => ({ ...prev, list: k }));
+    setProduk(prev => ({
+      ...prev,
+      loading: true,
+    }));
+    await Promise.all([
+      (async () => {
+        const k = await listKategori();
+        setKategori(prev => ({ ...prev, list: k }));
+      })(),
+      (async () => {
+        const t = await listTransaksiPending();
+        if (t[0]) {
+          const item = await listItem(t[0].id);
+          setTransaksi(prev => ({
+            ...prev,
+            trx_id: t[0].id,
+            item,
+            count: item.length,
+            mockItem: item.map(item => item.barcode),
+          }));
+        }
+      })(),
+    ]);
     await fetchProduk(1);
-    const t = await listTransaksiPending();
-    if (t[0]) {
-      const item = await listItem(t[0].id);
-      setTransaksi(prev => ({ ...prev, trx_id: t[0].id, item, count: item.length }));
-    }
   };
 
   const fetchProduk = async (page: number, option?: Partial<Pick<QueryProduk, 'kategori' | 'search'>>) => {
@@ -51,6 +77,7 @@ function POS() {
       setProduk(prev => ({
         ...prev,
         loading: true,
+        list: option ? [] : prev.list,
       }));
 
       const res = await listProduk({ page: page.toString(), pageSize: produk.limit.toString(), ...option });
@@ -59,7 +86,6 @@ function POS() {
         ...prev,
         last,
         list: page === 1 ? res : [...prev.list, ...res],
-
         page,
       }));
     } finally {
@@ -81,23 +107,53 @@ function POS() {
   };
 
   const addKeranjang = async (request: TransaksiItemPayload) => {
-    let id = '';
-    let count = false;
     const { transaksi_id, ...payload } = request;
+
     if (!transaksi_id) {
-      id = await createTransaksi(payload);
-      count = true;
+      const id = await createTransaksi(payload);
+
+      setTransaksi(prev => ({ ...prev, trx_id: id, count: 1, mockItem: [payload.barcode] }));
     } else {
       await addItem(request);
+      setTransaksi(prev => {
+        const increase = prev.mockItem.find(barcode => barcode === request.barcode);
+        if (!increase) {
+          prev.count += 1;
+        }
+        return { ...prev };
+      });
     }
-    setTransaksi(prev => {
-      const find = prev.item.find(item => item.produk_id === request.produk_id);
-      return { ...prev, count: find && !count ? prev.count : prev.count + 1, trx_id: id };
-    });
+  };
+
+  const searchProduct = (text: string) => {
+    if (!refSearch.current) return;
+
+    setBarcode(false);
+    refSearch.current.value = text;
+    const params: Pick<QueryProduk, 'kategori' | 'search'> = {};
+
+    if (text) params.search = text.trim();
+    if (kategori.active !== 'semua') params.kategori = kategori.active;
+    fetchProduk(1, params);
+  };
+
+  const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    const searchValue = e.currentTarget.value.trim(); // Trim whitespace
+
+    const params: Pick<QueryProduk, 'kategori' | 'search'> = {};
+
+    if (searchValue) params.search = searchValue;
+    if (kategori.active !== 'semua') params.kategori = kategori.active;
+
+    fetchProduk(1, params);
   };
 
   return (
     <div className="flex flex-col">
+      <BottomSheet show={barcode} setShow={() => setBarcode(false)}>
+        <ScanBarcode open={barcode} onText={searchProduct} />
+      </BottomSheet>
       <Keranjang
         show={!!transaksi.keranjang}
         setShow={() => setTransaksi(prev => ({ ...prev, keranjang: null }))}
@@ -122,13 +178,15 @@ function POS() {
         <section className="px-2 py-2 flex gap-2 items-center bg-white">
           <div className="border w-full overflow-hidden h-8 rounded-full">
             <input
+              ref={refSearch}
               type="text"
               inputMode="search"
               placeholder="Cari ...."
               className="w-full text-sm px-4 h-full outline-none"
+              onKeyDown={handleSearch}
             />
           </div>
-          <button className="h-8 aspect-square">
+          <button className="h-8 aspect-square" onClick={() => setBarcode(true)}>
             <i className="fa-solid fa-expand"></i>
           </button>
         </section>

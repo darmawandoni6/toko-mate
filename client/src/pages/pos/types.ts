@@ -20,4 +20,5 @@ export type TransaksiView = {
   item: TransaksiDetailAPI[];
   count: number;
   keranjang: ProdukAPI | null;
+  mockItem: string[];
 };

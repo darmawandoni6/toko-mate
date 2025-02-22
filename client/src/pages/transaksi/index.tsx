@@ -19,7 +19,7 @@ function Transaksi() {
     last: false,
     loading: false,
   });
-  const [receipt, setReceipt] = useState<ReceiptView>({ show: false, transaksi: null, items: [] });
+  const [receipt, setReceipt] = useState<ReceiptView>({ show: false, transaksi: null, items: [], loading: false });
 
   const calculate = useMemo(() => {
     if (receipt.transaksi) {
@@ -65,14 +65,21 @@ function Transaksi() {
     }
   };
 
-  const onShow = async (items: TransaksiAPI) => {
-    const res = await listItem(items.id);
-    setReceipt(prev => ({
-      ...prev,
-      show: true,
-      items: res,
-      transaksi: items,
-    }));
+  const onShow = async (loading: boolean, items: TransaksiAPI) => {
+    if (loading) return;
+
+    try {
+      setReceipt(prev => ({ ...prev, loading: true, show: true }));
+      const res = await listItem(items.id);
+      setReceipt(prev => ({
+        ...prev,
+        items: res,
+        transaksi: items,
+        loading: false,
+      }));
+    } catch {
+      setReceipt(prev => ({ ...prev, loading: false, show: false }));
+    }
   };
   return (
     <>
@@ -81,6 +88,7 @@ function Transaksi() {
         show={receipt.show}
         setShow={() => setReceipt(prev => ({ ...prev, show: false }))}
         items={receipt.items}
+        loading={receipt.loading}
         calculate={calculate}
         transaksi={{ kembalian: receipt.transaksi?.kembalian ?? 0, pembayaran: receipt.transaksi?.pembayaran ?? 0 }}
       />
@@ -105,7 +113,7 @@ function Transaksi() {
                 <p>{`Create Time: ${dateValue(new Date(item.updated_at))}`}</p>
               </div>
             </div>
-            <div className="w-8 aspect-square text-center" role="button" onClick={() => onShow(item)}>
+            <div className="w-8 aspect-square text-center" role="button" onClick={() => onShow(receipt.loading, item)}>
               <i className="fa-solid fa-chevron-right"></i>
             </div>
           </ScrollElement.Body>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
+import { PropagateLoader } from 'react-spinners';
 
 import Header from '../../components/header';
 import { config } from '../../config/base';
@@ -20,6 +21,7 @@ function PosCheckout() {
   const [show, setShow] = useState<boolean>(false);
   const [alert, setAlert] = useState<boolean>(false);
   const [receipt, setReceipt] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const calculate = useMemo(() => {
     let subTotal = 0;
@@ -44,15 +46,22 @@ function PosCheckout() {
   }, []);
 
   const fetchAll = async () => {
-    const t = await listTransaksiPending();
-    if (!t[0]) {
-      navigate('/', { replace: true });
+    try {
+      setLoading(true);
+      const t = await listTransaksiPending();
+      if (!t[0]) {
+        navigate('/pos', { replace: true });
+      }
+      const item = await listItem(t[0].id);
+      if (item.length < 1) {
+        navigate('/pos', { replace: true });
+      }
+      setItem(item);
+      setTrxId(t[0].id);
+    } finally {
+      setLoading(false);
     }
-    const item = await listItem(t[0].id);
-    setItem(item);
-    setTrxId(t[0].id);
   };
-
   const onSubmit = async (payload: TransaksiPaymentPayload) => {
     try {
       await paymentTransaksi(trxId, payload);
@@ -75,10 +84,16 @@ function PosCheckout() {
         items={items}
         calculate={calculate}
         transaksi={transaksi}
+        to="/pos"
       />
       <div className="flex flex-col gap-2 flex-1">
         <section className="p-2">
           <h2 className="font-bold mb-2">Produk list</h2>
+          {loading && (
+            <div className="w-full flex justify-center h-6 my-6">
+              <PropagateLoader color="var(--primary)" />
+            </div>
+          )}
           {items.map((item, i) => (
             <div className="flex gap-2 items-start mb-2" key={i}>
               <div className="border rounded-lg p-1 flex gap-3 flex-auto overflow-hidden">
@@ -136,7 +151,11 @@ function PosCheckout() {
           <p className="text-xs">Total harga:</p>
           <p className="text-red-600 text-base font-bold">{currency(calculate.total)}</p>
         </section>
-        <button className="bg-primary text-white h-9 rounded-lg text-sm px-4" onClick={() => setShow(true)}>
+        <button
+          className="bg-primary text-white h-9 rounded-lg text-sm px-4 border border-primary disabled:bg-primary-disabled"
+          disabled={loading}
+          onClick={() => setShow(true)}
+        >
           Bayar
         </button>
       </footer>

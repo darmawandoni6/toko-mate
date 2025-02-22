@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
+import { PropagateLoader } from 'react-spinners';
 
 import Header from '../../components/header';
+import { config } from '../../config/base';
 import { listItem, listTransaksiPending, removeItem, removeTransaksi, updateItem } from '../../repository/transaksi';
 import { TransaksiDetailAPI } from '../../repository/transaksi/types';
 import { currency } from '../../utils/number';
@@ -15,6 +17,7 @@ function PostOrder() {
   const [trxId, setTrxId] = useState<string>('');
   const [items, setItem] = useState<TransaksiDetailAPI[]>([]);
   const [check, setCheck] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const subTotal = useMemo(() => {
     const res = items.reduce((acc, data) => {
@@ -31,13 +34,21 @@ function PostOrder() {
   }, []);
 
   const fetchAll = async () => {
-    const t = await listTransaksiPending();
-    if (!t[0]) {
-      navigate('/', { replace: true });
+    try {
+      setLoading(true);
+      const t = await listTransaksiPending();
+      if (!t[0]) {
+        navigate('/pos', { replace: true });
+      }
+      const item = await listItem(t[0].id);
+      if (item.length < 1) {
+        navigate('/pos', { replace: true });
+      }
+      setItem(item);
+      setTrxId(t[0].id);
+    } finally {
+      setLoading(false);
     }
-    const item = await listItem(t[0].id);
-    setItem(item);
-    setTrxId(t[0].id);
   };
 
   const updateProduk = async (item: TransaksiDetailAPI, qty: number) => {
@@ -74,6 +85,7 @@ function PostOrder() {
 
   const onRemoveAll = async () => {
     await removeTransaksi(trxId);
+    navigate('/pos', { replace: true });
     setItem([]);
   };
 
@@ -94,6 +106,11 @@ function PostOrder() {
         </section>
 
         <section className="flex flex-col gap-2">
+          {loading && (
+            <div className="w-full flex justify-center h-6 my-6">
+              <PropagateLoader color="var(--primary)" />
+            </div>
+          )}
           {items.map((item, i) => (
             <div className="flex gap-2  items-start" key={i}>
               <div className="border rounded-lg p-1 w-full flex gap-3 overflow-x-hidden">
@@ -159,7 +176,11 @@ function PostOrder() {
           <p className="text-xs">Total harga:</p>
           <p className="text-red-600 text-base font-bold">{subTotal}</p>
         </section>
-        <button className="bg-primary text-white h-9 rounded-lg text-sm px-4" onClick={() => navigate('/pos/checkout')}>
+        <button
+          className="bg-primary text-white h-9 rounded-lg text-sm px-4 disabled:bg-primary-disabled"
+          disabled={loading}
+          onClick={() => navigate('/pos/checkout', { replace: true })}
+        >
           Checkout
         </button>
       </footer>

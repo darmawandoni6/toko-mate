@@ -10,6 +10,7 @@ export type TransaksiView = {
 
 export type ReceiptView = {
   show: boolean;
-  items: TransaksiDetailAPI[];
   transaksi: TransaksiAPI | null;
+  items: TransaksiDetailAPI[];
+  loading: boolean;
 };

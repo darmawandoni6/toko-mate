@@ -105,7 +105,7 @@ const Keranjang: FC<Props> = ({ show, setShow, produk, addItem, transaksi_id }) 
             </button>
           </div>
           <button className="border h-8 rounded flex-1 bg-primary text-white shadow" onClick={onAdd} disabled={loading}>
-            Tambah
+            {loading ? 'Loading...' : 'Tambah'}
           </button>
         </div>
       </Modal.Body>
