@@ -48,8 +48,15 @@ export class ProdukRepository {
     });
   }
 
-  async remove(id: string, toko_id: string): Promise<void> {
-    await this.prisma.produk.delete({ where: { id, toko_id } });
+  async remove(id: string, toko_id: string): Promise<string | null> {
+    const res = await this.prisma.produk.delete({
+      where: { id, toko_id },
+      select: {
+        image: true,
+      },
+    });
+
+    return res.image;
   }
 
   async detail(

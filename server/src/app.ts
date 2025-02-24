@@ -4,8 +4,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import logger from "morgan";
 
-import { prisma } from "@config/prisma";
 import { errorHandler, methodNotAllowed } from "@middleware/error-middleware";
+import { PrismaClient } from "@prisma/client";
 import { AuthRouter } from "@route/auth-route";
 import { DiskonRouter } from "@route/diskon-route";
 import { ProdukRouter } from "@route/produk-route";
@@ -13,11 +13,13 @@ import { TransaksiRouter } from "@route/transaksi-route";
 
 class App {
   private readonly app: express.Application;
+  private readonly prisma: PrismaClient;
   readonly message: string;
 
-  constructor(port: number) {
+  constructor(port: number, prisma: PrismaClient) {
     this.app = express();
     this.message = `[Server]: I am running mode ${process.env.NODE_ENV} at http://localhost:${port}`;
+    this.prisma = prisma;
   }
 
   get getApp(): express.Application {
@@ -57,16 +59,16 @@ class App {
       next();
     });
 
-    const auth = new AuthRouter(prisma);
+    const auth = new AuthRouter(this.prisma);
     this.app.use("/api-v1", auth.route);
 
-    const produk = new ProdukRouter(prisma);
+    const produk = new ProdukRouter(this.prisma);
     this.app.use("/api-v1", produk.route);
 
-    const transaksi = new TransaksiRouter(prisma);
+    const transaksi = new TransaksiRouter(this.prisma);
     this.app.use("/api-v1", transaksi.route);
 
-    const diskon = new DiskonRouter(prisma);
+    const diskon = new DiskonRouter(this.prisma);
     this.app.use("/api-v1", diskon.route);
 
     this.app.use(methodNotAllowed);

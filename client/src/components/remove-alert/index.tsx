@@ -1,7 +1,5 @@
 import { FC, useState } from 'react';
 
-import { toast } from 'react-toastify';
-
 import Modal from '../modal';
 
 interface Props {
@@ -17,7 +15,7 @@ const RemoveAlert: FC<Props> = ({ show, setShow, name, onSubmit }) => {
     try {
       setLoading(true);
       await onSubmit();
-      toast.success('Success menghapus data');
+
       setShow();
     } finally {
       setLoading(false);
@@ -38,13 +36,15 @@ const RemoveAlert: FC<Props> = ({ show, setShow, name, onSubmit }) => {
         </div>
         <div className="text-center mb-4">
           <h1 className="text-2xl font-semibold mb-2">Kamu Yakin ?</h1>
-          <p>{`Anda yakin menghapus item ini ${name || ''}?`}</p>
+          <p>
+            Anda yakin menghapus item<span className="font-bold">{` ${name || 'ini'}`}</span> ?
+          </p>
         </div>
         <div className="flex gap-2">
-          <button className=" px-2 py-1 rounded-sm text-xs bg-blue-600 text-white font-medium" onClick={handleSubmit}>
+          <button className=" px-2 py-1 rounded text-xs bg-blue-600 text-white font-medium" onClick={handleSubmit}>
             {loading ? 'Loading...' : 'Iya, Hapus!'}
           </button>
-          <button className=" px-2 py-1 rounded-sm text-xs bg-red-600 text-white font-medium" onClick={handleClose}>
+          <button className=" px-2 py-1 rounded text-xs bg-red-600 text-white font-medium" onClick={handleClose}>
             Cancel
           </button>
         </div>

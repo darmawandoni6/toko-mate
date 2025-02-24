@@ -1,3 +1,5 @@
+import { toast } from 'react-toastify';
+
 import { HttpFetch } from '../../config/http-fetch';
 import { KategoriAPI, KategoriList, KategoriPayload } from './types';
 
@@ -19,4 +21,5 @@ export async function updateKategori(id: string, payload: Partial<KategoriPayloa
 }
 export async function removeKategori(id: string): Promise<void> {
   await http.DELETE(`/kategori/${id}`);
+  toast.success('Success menghapus data');
 }

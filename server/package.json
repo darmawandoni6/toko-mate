@@ -9,6 +9,9 @@
     "sync": "ts-node src/models/sync.ts",
     "build": "rm -rf dist && tsc && tsc-alias"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "author": "darmawandoni6@gmail.com",
   "license": "ISC",
   "dependencies": {

@@ -87,7 +87,11 @@ export class ProdukUsecase {
     return this.result();
   }
   async remove(id: string): Promise<ReturnType<typeof this.result>> {
-    await this.repo.remove(id, this.toko_id);
+    const image = await this.repo.remove(id, this.toko_id);
+    if (image && fs.existsSync(image)) {
+      fs.unlinkSync(image);
+    }
+
     return this.result();
   }
   async detail(id: string): Promise<ReturnType<typeof this.result>> {

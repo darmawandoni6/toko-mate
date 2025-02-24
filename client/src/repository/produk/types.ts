@@ -2,8 +2,8 @@ import { DiskonAPI } from '../diskon/types';
 import { KategoriAPI } from '../kategori/types';
 
 export interface QueryProduk {
-  page: string;
-  pageSize: string;
+  page: number;
+  pageSize: number;
   search?: string;
   kategori?: string;
 }

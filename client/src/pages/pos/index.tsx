@@ -203,7 +203,7 @@ function POS() {
             </button>
             {kategori.list.map(item => (
               <button
-                className={clsx('border rounded text-sm px-2 py-0.5 whitespace-nowrap', {
+                className={clsx('border rounded text-sm px-2 py-0.5 whitespace-nowrap capitalize', {
                   ['border-primary text-primary']: kategori.active === item.id,
                 })}
                 key={item.id}

@@ -54,7 +54,10 @@ export const removeProduk = async (id: string) => {
 
 export const uploadFile = async (id: string, file: FormData): Promise<string> => {
   try {
-    await http.POST(`/produk-file/${id}`, file, { json: false, headers: undefined });
+    await http.POST(`/produk-file/${id}`, file, {
+      json: false,
+      headers: {},
+    });
     toast.success('success ubah image');
     return '';
   } catch (error) {

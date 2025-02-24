@@ -91,7 +91,7 @@ export class ProdukController {
     }
   };
   updateImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    multer({ storage: diskStorage, fileFilter, limits: { fieldSize: 2 * 1024 * 1024 } }).single("produk")(
+    multer({ storage: diskStorage, fileFilter, limits: { fileSize: 2 * 1024 * 1024 } }).single("produk")(
       req,
       res,
       async (err) => {

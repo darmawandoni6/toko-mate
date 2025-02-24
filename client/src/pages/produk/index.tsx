@@ -1,4 +1,4 @@
-import { KeyboardEvent, useEffect, useState } from 'react';
+import { KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { PropagateLoader } from 'react-spinners';
@@ -17,9 +17,10 @@ import { ProdukView, kategoriView } from './types';
 import { calculationDiskon } from './utils';
 
 const Produk = () => {
+  const refSearch = useRef<HTMLInputElement | null>(null);
+
   const [kategori, setKategori] = useState<kategoriView>({ list: [], active: 'semua' });
   const [diskon, setDiskon] = useState<DiskonAPI[]>([]);
-
   const [produk, setProduk] = useState<ProdukView>({
     list: [],
     page: 1,
@@ -29,6 +30,12 @@ const Produk = () => {
     form: false,
   });
 
+  const filter = useMemo(() => {
+    const params: Partial<Omit<QueryProduk, 'page' | 'pageSize'>> = {};
+    if (kategori.active !== 'semua') params.kategori = kategori.active;
+    return params;
+  }, [kategori.active]);
+
   useEffect(() => {
     allFetch();
   }, []);
@@ -36,25 +43,29 @@ const Produk = () => {
   const allFetch = async () => {
     const k = await listKategori();
     setKategori(prev => ({ ...prev, list: k }));
-    await fetchProduk(1);
+
+    await fetchProduk(1, produk.limit);
     const d = await AllListDiskon();
     setDiskon(d);
   };
 
-  const fetchProduk = async (page: number, option?: Partial<Pick<QueryProduk, 'kategori' | 'search'>>) => {
+  const fetchProduk = async (
+    page: number,
+    pageSize: number,
+    options?: Partial<Omit<QueryProduk, 'page' | 'pageSize'>>,
+  ) => {
     try {
       setProduk(prev => ({
         ...prev,
         loading: true,
       }));
 
-      const res = await listProduk({ page: page.toString(), pageSize: produk.limit.toString(), ...option });
+      const res = await listProduk({ page, pageSize, ...options });
       setProduk(prev => ({
         ...prev,
         last: res.length < prev.limit,
         list: page === 1 ? res : [...prev.list, ...res],
-
-        page,
+        page: page,
       }));
     } finally {
       setProduk(prev => ({
@@ -66,12 +77,8 @@ const Produk = () => {
 
   const onKategori = (type: string) => {
     setKategori(prev => ({ ...prev, active: type }));
-
-    if (type === 'semua') {
-      fetchProduk(1);
-    } else {
-      fetchProduk(1, { kategori: type });
-    }
+    filter.kategori = type !== 'semua' ? type : undefined;
+    fetchProduk(1, produk.limit, filter);
   };
 
   const onSubmit = async (data: ProdukForm) => {
@@ -86,7 +93,7 @@ const Produk = () => {
     };
 
     await createProduk(payload);
-    await fetchProduk(1);
+    await fetchProduk(1, produk.limit, filter);
   };
 
   const onForm = () => {
@@ -98,14 +105,12 @@ const Produk = () => {
 
   const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') return;
-    const searchValue = e.currentTarget.value.trim(); // Trim whitespace
+    console.log(produk.limit);
 
-    const params: Pick<QueryProduk, 'kategori' | 'search'> = {};
-
-    if (searchValue) params.search = searchValue;
-    if (kategori.active !== 'semua') params.kategori = kategori.active;
-
-    fetchProduk(1, params);
+    if (e.currentTarget.value) {
+      filter.search = e.currentTarget.value.trim();
+    }
+    fetchProduk(1, produk.limit, filter);
   };
 
   return (
@@ -117,6 +122,7 @@ const Produk = () => {
       <section className="h-12 border-b flex items-center px-2 gap-2">
         <div className="border flex-auto overflow-hidden h-8 rounded-full">
           <input
+            ref={refSearch}
             type="text"
             inputMode="search"
             placeholder="Cari ...."
@@ -151,7 +157,7 @@ const Produk = () => {
       </section>
 
       <ScrollElement
-        next={() => fetchProduk(produk.page + 1)}
+        next={() => fetchProduk(produk.page + 1, produk.limit, filter)}
         loader={
           <div className="w-full flex justify-center h-6 mb-6">
             <PropagateLoader color="var(--primary)" />

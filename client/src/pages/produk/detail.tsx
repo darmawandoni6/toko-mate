@@ -1,15 +1,16 @@
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import Header from '../../components/header';
+import RemoveAlert from '../../components/remove-alert';
 import ReactSwitch from '../../components/switch';
 import { config } from '../../config/base';
 import { AllListDiskon } from '../../repository/diskon';
 import { DiskonAPI } from '../../repository/diskon/types';
 import { listKategori } from '../../repository/kategori';
 import { KategoriAPI } from '../../repository/kategori/types';
-import { detailProduk, updateProduk, updateStatus, uploadFile } from '../../repository/produk';
+import { detailProduk, removeProduk, updateProduk, updateStatus, uploadFile } from '../../repository/produk';
 import { ProdukAPI, ProdukForm, ProdukPayload } from '../../repository/produk/types';
 import { currency, toNumber } from '../../utils/number';
 import List from './_components/list';
@@ -19,11 +20,12 @@ import { calculationDiskon } from './utils';
 
 const ProdukDetail = () => {
   const param = useParams();
+  const navigate = useNavigate();
 
   const [kategori, setKategori] = useState<KategoriAPI[]>([]);
   const [diskon, setDiskon] = useState<DiskonAPI[]>([]);
   const [row, setRow] = useState<ProdukAPI | null>(null);
-  const [show, setShow] = useState<boolean>(false);
+  const [show, setShow] = useState<{ form: boolean; remove: boolean }>({ form: false, remove: false });
   const [loading, setLoading] = useState<{
     fetch: boolean;
     status: boolean;
@@ -89,7 +91,10 @@ const ProdukDetail = () => {
   };
 
   const onForm = () => {
-    setShow(prev => !prev);
+    setShow(prev => ({ ...prev, form: !prev.form }));
+  };
+  const onRemove = () => {
+    setShow(prev => ({ ...prev, remove: !prev.remove }));
   };
 
   const onStatus = async (val: boolean) => {
@@ -106,7 +111,7 @@ const ProdukDetail = () => {
 
   const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const prevImage = row.image!;
+    const prevImage = row.image ?? '';
 
     const frm = new FormData();
     frm.append('produk', e.target.files[0]);
@@ -121,15 +126,33 @@ const ProdukDetail = () => {
     }
   };
 
+  const removeItem = async () => {
+    await removeProduk(row.id);
+    navigate(-1);
+  };
+
   return (
     <>
       <Header title="Detail Produk">
-        <button className="absolute right-1 h-8 aspect-square" onClick={() => setShow(true)}>
-          <i className="fa-regular fa-pen-to-square"></i>
-        </button>
+        <section className="absolute right-1 h-8 flex gap-1">
+          <button className=" aspect-square" onClick={onForm}>
+            <i className="fa-regular fa-pen-to-square"></i>
+          </button>
+          <button className="aspect-square" onClick={onRemove}>
+            <i className="fa-regular fa-trash-can"></i>
+          </button>
+        </section>
       </Header>
 
-      <FormProduk show={show} setShow={onForm} kategori={kategori} diskon={diskon} setSubmit={onSubmit} row={row} />
+      <FormProduk
+        show={show.form}
+        setShow={onForm}
+        kategori={kategori}
+        diskon={diskon}
+        setSubmit={onSubmit}
+        row={row}
+      />
+      <RemoveAlert show={show.remove} onSubmit={removeItem} setShow={onRemove} name={row.nama} />
 
       <div className="p-3">
         <section>
@@ -145,7 +168,7 @@ const ProdukDetail = () => {
             </label>
             <input className="hidden" id="file" type="file" onChange={onFile} />
           </div>
-          <List label="Kategori" className="capitalize" value={row.kategori.nama} />
+          <List label="Kategori" value={row.kategori.nama} />
           <List label="Harga Beli" value={currency(row.harga_beli)} />
           <List label="Harga Jual" value={currency(row.harga_jual)} />
           <List label="Harga Diskon" value={currency(row.harga_jual - calculateDiskon)} />
