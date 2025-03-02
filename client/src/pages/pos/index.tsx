@@ -80,7 +80,7 @@ function POS() {
         list: option ? [] : prev.list,
       }));
 
-      const res = await listProduk({ page: page.toString(), pageSize: produk.limit.toString(), ...option });
+      const res = await listProduk({ page, pageSize: produk.limit, ...option });
       const last = res.length !== produk.limit;
       setProduk(prev => ({
         ...prev,
