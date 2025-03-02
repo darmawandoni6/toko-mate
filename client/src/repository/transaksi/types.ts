@@ -47,6 +47,7 @@ export interface TransaksiReportAPI {
       produk_nama: string;
       qty: number;
       total: number;
+      image: string | null;
     };
   };
 }

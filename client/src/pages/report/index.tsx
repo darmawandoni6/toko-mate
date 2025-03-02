@@ -7,6 +7,7 @@ import WeeklyEarning from '../../assets/images/weekly-earning.svg?react';
 import AreaChart from '../../components/chart/area-chart';
 import FormInput from '../../components/form-input';
 import Header from '../../components/header';
+import { config } from '../../config/base';
 import { transaksiReport } from '../../repository/transaksi';
 import { TransaksiReportAPI } from '../../repository/transaksi/types';
 import { dateValue } from '../../utils/date';
@@ -85,19 +86,29 @@ function Report() {
           </div>
           <div className="p-2 flex flex-col gap-4">
             {Object.entries(topProduk).map(([key, val], i) => (
-              <Link to={`/produk/${key}`} className="flex" key={i}>
-                <div className="flex items-center gap-1 flex-auto overflow-hidden">
+              <Link to={`/produk/${key}`} className="flex group" key={i}>
+                <div className="flex items-start gap-2 flex-auto overflow-hidden">
                   <div className=" min-w-12 aspect-square rounded-lg bg-gray-300 flex">
-                    <i className="fa-regular fa-image m-auto text-lg"></i>
+                    {val.image ? (
+                      <img
+                        src={`${config.baseUrl}/${val.image}`}
+                        alt={val.produk_nama}
+                        height={48}
+                        width={48}
+                        className="aspect-square max-w-full max-h-12 object-cover m-auto"
+                      />
+                    ) : (
+                      <i className="fa-regular fa-image m-auto text-lg"></i>
+                    )}
                   </div>
                   <div className="flex-auto flex flex-col overflow-hidden">
-                    <p className="text-sm font-bold ellipsis-2">{val.produk_nama}</p>
+                    <p className="text-sm font-bold ellipsis-2 group-hover:underline">{val.produk_nama}</p>
                     <span className="text-xs">{`Total: ${currency(val.total)}`}</span>
                   </div>
                 </div>
-                <div className="flex flex-col items-center p-2 min-w-fit">
+                <div className="flex flex-col min-w-fit">
                   <span className="text-sm">Total Jual</span>
-                  <span className="text-xl font-bold">{val.qty.toLocaleString('id-ID')}</span>
+                  <span className="text-xl text-center font-bold">{val.qty.toLocaleString('id-ID')}</span>
                 </div>
               </Link>
             ))}

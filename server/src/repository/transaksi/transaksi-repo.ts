@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Transaksi, Transaksi_Detail } from "@prisma/client";
+import { Prisma, PrismaClient, Produk, Transaksi, Transaksi_Detail } from "@prisma/client";
 import { QueryPage } from "@usecase/produk/types";
 import { RangeDate } from "@usecase/transaksi/types";
 
@@ -141,7 +141,10 @@ export class TransaksiRepository {
     lte: Date
   ): Promise<
     (Pick<Transaksi, "updated_at" | "total"> & {
-      transaksi: Pick<Transaksi_Detail, "produk_id" | "produk_nama" | "qty" | "sub_total">[];
+      transaksi: Pick<
+        Transaksi_Detail & { produk: Pick<Produk, "image"> },
+        "produk_id" | "produk_nama" | "qty" | "sub_total" | "produk"
+      >[];
     })[]
   > {
     const res = await this.prisma.transaksi.findMany({
@@ -165,6 +168,11 @@ export class TransaksiRepository {
             produk_nama: true,
             qty: true,
             sub_total: true,
+            produk: {
+              select: {
+                image: true,
+              },
+            },
           },
         },
       },

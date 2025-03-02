@@ -374,7 +374,9 @@ export class TransaksiUsecase {
     };
     const weekRevenue: number[] = weeks.map(() => 0);
 
-    const topProduk: { [k: string]: Pick<Transaksi_Detail, "produk_nama" | "qty"> & { total: number } } = {};
+    const topProduk: {
+      [k: string]: Pick<Transaksi_Detail, "produk_nama" | "qty"> & { image: string | null; total: number };
+    } = {};
     let topL = 0;
 
     for (const v of result) {
@@ -389,6 +391,7 @@ export class TransaksiUsecase {
             produk_nama: item.produk_nama,
             qty: item.qty,
             total: Number(item.sub_total),
+            image: item.produk.image || null,
           };
         }
       }
