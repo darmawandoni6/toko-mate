@@ -9,20 +9,22 @@ export class StokRepository {
 
   async create(data: Prisma.StokUncheckedCreateInput, price: Pick<Produk, "harga_jual" | "harga_beli">): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
-      await tx.stok.create({ data });
-      await tx.produk.update({
-        where: { id: data.produk_id },
-        data: {
-          harga_jual: price.harga_jual,
-          harga_beli: price.harga_beli,
-          total_stok:
-            data.qty > 0
-              ? {
-                  increment: data.qty,
-                }
-              : { decrement: Math.abs(data.qty) },
-        },
-      });
+      await Promise.all([
+        tx.stok.create({ data }),
+        tx.produk.update({
+          where: { id: data.produk_id },
+          data: {
+            harga_jual: price.harga_jual,
+            harga_beli: price.harga_beli,
+            total_stok:
+              data.qty > 0
+                ? {
+                    increment: data.qty,
+                  }
+                : { decrement: Math.abs(data.qty) },
+          },
+        }),
+      ]);
     });
   }
 

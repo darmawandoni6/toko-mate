@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient, Produk, Transaksi, Transaksi_Detail } from "@prisma/client";
 import { QueryPage } from "@usecase/produk/types";
-import { RangeDate } from "@usecase/transaksi/types";
+import { RangeDate, Transaksi_Pending } from "@usecase/transaksi/types";
 
 export class TransaksiRepository {
   private readonly prisma: PrismaClient;
@@ -21,25 +21,32 @@ export class TransaksiRepository {
     stocks: Pick<Transaksi_Detail, "qty" | "produk_id">[]
   ): Promise<void> {
     await this.prisma.$transaction(async (trx) => {
-      await trx.transaksi.update({ where: { id, toko_id }, data });
+      const dataStok: Prisma.StokCreateManyInput[] = [];
+      const produkUpdate: Prisma.Prisma__ProdukClient<Produk>[] = [];
       for (const v of stocks) {
-        await trx.stok.create({
-          data: {
-            qty: v.qty * -1,
-            deskripsi: `transaksi: ${data.no_faktur} by: ${data.updated_by}`,
-            produk_id: v.produk_id,
-            mark: "TRANSAKSI",
-            email: String(data.updated_by),
-            toko_id,
-          },
+        dataStok.push({
+          qty: v.qty * -1,
+          deskripsi: `transaksi: ${data.no_faktur} by: ${data.updated_by}`,
+          produk_id: v.produk_id,
+          mark: "TRANSAKSI",
+          email: String(data.updated_by),
+          toko_id,
         });
-        await trx.produk.update({
-          where: { id: v.produk_id },
-          data: {
-            total_stok: { decrement: v.qty },
-          },
-        });
+        produkUpdate.push(
+          trx.produk.update({
+            where: { id: v.produk_id },
+            data: {
+              total_stok: { decrement: v.qty },
+            },
+          })
+        );
       }
+
+      await Promise.all([
+        trx.transaksi.update({ where: { id, toko_id }, data }),
+        trx.stok.createMany({ data: dataStok }),
+        [...produkUpdate],
+      ]);
     });
   }
 
@@ -65,15 +72,7 @@ export class TransaksiRepository {
     return res;
   }
 
-  async listPayment(
-    id: string,
-    toko_id: string
-  ): Promise<
-    | (Pick<Transaksi, "id" | "sub_total" | "total_diskon" | "total"> & {
-        transaksi: Pick<Transaksi_Detail, "id" | "transaksi_id" | "sub_total" | "diskon_total" | "qty" | "produk_id">[];
-      })
-    | null
-  > {
+  async listPayment(id: string, toko_id: string): Promise<Transaksi_Pending | null> {
     const res = await this.prisma.transaksi.findUnique({
       where: { id, mark: "PENDING", toko_id },
       select: {

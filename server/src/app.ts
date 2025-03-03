@@ -48,16 +48,16 @@ class App {
 
     this.app.use("/uploads", express.static("uploads"));
 
-    this.app.use(async (req, res, next) => {
-      await new Promise<void>((res) => {
-        const random = Math.floor(Math.random() * (2 - 0 + 1)) + 0;
+    // this.app.use(async (req, res, next) => {
+    //   await new Promise<void>((res) => {
+    //     const random = Math.floor(Math.random() * (2 - 0 + 1)) + 0;
 
-        setTimeout(() => {
-          res();
-        }, random * 1000);
-      });
-      next();
-    });
+    //     setTimeout(() => {
+    //       res();
+    //     }, random * 1000);
+    //   });
+    //   next();
+    // });
 
     const auth = new AuthRouter(this.prisma);
     this.app.use("/api-v1", auth.route);

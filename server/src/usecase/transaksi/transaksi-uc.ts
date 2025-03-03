@@ -7,7 +7,7 @@ import { TransaksiDetailRepository } from "@repository/transaksi/transaksi-detai
 import { TransaksiRepository } from "@repository/transaksi/transaksi-repo";
 import { resJson } from "@util/resJson";
 
-import { QueryPage } from "./types";
+import { QueryPage, Transaksi_Pending } from "./types";
 
 export class TransaksiUsecase {
   private readonly repo_transaksi: TransaksiRepository;
@@ -101,6 +101,7 @@ export class TransaksiUsecase {
     payment: Joi.object<Transaksi>({
       pembayaran: Joi.number().required(),
       kembalian: Joi.number().required(),
+      email: Joi.string().required(),
     }),
   };
 
@@ -181,15 +182,6 @@ export class TransaksiUsecase {
       sub_total: data.qty > 0 ? data.qty * Number(data.produk_harga_jual) - Number(payload.diskon_total ?? 0) : 0,
     };
   }
-  set dataPayment(payload: Transaksi) {
-    const data = this.validate(this.validationSchemas.payment, payload);
-
-    this.data_payment = {
-      mark: "SUCCESS",
-      pembayaran: data.pembayaran,
-      kembalian: data.kembalian,
-    };
-  }
 
   async list(email: string): Promise<ReturnType<typeof this.result>> {
     const res = await this.repo_transaksi.list({ email, mark: "PENDING", toko_id: this.toko_id });
@@ -213,42 +205,62 @@ export class TransaksiUsecase {
     const res = await this.repo_transaksi.create(this.data_create);
     return this.result(res);
   }
-  async payment(id: string, email: string): Promise<ReturnType<typeof this.result>> {
-    const res = await this.repo_transaksi.listPayment(id, this.toko_id);
-
+  async getTransaksi(id: string): Promise<{ data: Transaksi_Pending; count: number }> {
     const start = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const end = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
-    const count = await this.repo_transaksi.countSuccess(this.toko_id, { gte: start, lt: end });
 
-    if (!res) {
+    const [data, count] = await Promise.all([
+      this.repo_transaksi.listPayment(id, this.toko_id),
+      this.repo_transaksi.countSuccess(this.toko_id, { gte: start, lt: end }),
+    ]);
+
+    if (!data) {
       throw createHttpError.NotFound(`id transaksi: ${id} tidak ditemukan`);
     }
+    return { data, count };
+  }
 
-    this.data_payment.updated_by = email;
-    res.total_diskon ??= new Prisma.Decimal(0);
+  calculateTransaksi(
+    data: Transaksi_Pending,
+    count: number,
+    payload: Transaksi
+  ): Pick<Transaksi_Detail, "qty" | "produk_id">[] {
+    const body = this.validate(this.validationSchemas.payment, payload);
 
-    for (const v of res.transaksi) {
-      res.sub_total = res.sub_total.add(v.sub_total);
+    const stok: Pick<Transaksi_Detail, "qty" | "produk_id">[] = [];
+
+    for (const v of data.transaksi) {
+      data.sub_total = data.sub_total.add(v.sub_total);
 
       const diskon_total = v.diskon_total ? v.diskon_total.mul(v.qty) : new Prisma.Decimal(0);
-      res.total_diskon = res.total_diskon.add(diskon_total);
+      data.total_diskon = data.total_diskon.add(diskon_total);
+
+      stok.push({ qty: v.qty, produk_id: v.produk_id });
     }
 
-    res.total = res.sub_total.sub(res.total_diskon);
-    this.data_payment.sub_total = res.sub_total;
-    this.data_payment.total_diskon = res.total_diskon;
-    this.data_payment.total = res.total;
+    data.total = data.sub_total.sub(data.total_diskon);
 
+    this.data_payment = {
+      mark: "SUCCESS",
+      pembayaran: body.pembayaran,
+      kembalian: body.kembalian,
+      updated_by: payload.email,
+      sub_total: data.sub_total,
+      total_diskon: data.total_diskon,
+      total: data.total,
+    };
     const now = new Date();
     const year = now.getFullYear();
     const month = new Intl.DateTimeFormat("id-ID", { month: "2-digit" }).format(now);
     this.data_payment.no_faktur = `TM-${year}${month}-${this.formatNumber(count + 1)}`;
 
-    const stok: Pick<Transaksi_Detail, "qty" | "produk_id">[] = res.transaksi.map((item) => ({
-      qty: item.qty,
-      produk_id: item.produk_id,
-    }));
+    return stok;
+  }
 
+  async updateTransaksi(
+    id: string,
+    stok: Pick<Transaksi_Detail, "qty" | "produk_id">[]
+  ): Promise<ReturnType<typeof this.result>> {
     await this.repo_transaksi.update(id, this.toko_id, this.data_payment, stok);
     return this.result();
   }

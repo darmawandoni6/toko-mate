@@ -136,8 +136,11 @@ export class ProdukUsecase {
       where.kategori_id = query.kategori;
     }
 
-    const result = await this.repo.list(payload.page, payload.pageSize, where);
-    const count = await this.repo.listCount(this.toko_id);
+    const [result, count] = await Promise.all([
+      this.repo.list(payload.page, payload.pageSize, where),
+      this.repo.listCount(this.toko_id),
+    ]);
+
     const pagination: Pagination = {
       page: payload.page,
       limit: payload.pageSize,

@@ -68,8 +68,10 @@ export class StokUsecase {
   async list(query: QueryPage): Promise<ReturnType<typeof this.result>> {
     const payload = this.validate(this.validationSchemas.listQuery, query);
 
-    const result = await this.repo.list(this.toko_id, query.page, query.pageSize);
-    const count = await this.repo.listCount(this.toko_id);
+    const [result, count] = await Promise.all([
+      this.repo.list(this.toko_id, query.page, query.pageSize),
+      this.repo.listCount(this.toko_id),
+    ]);
     const pagination: Pagination = {
       page: payload.page,
       limit: payload.pageSize,

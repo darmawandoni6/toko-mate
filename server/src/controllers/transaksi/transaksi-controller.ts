@@ -68,9 +68,13 @@ export class TransaksiController {
     try {
       const { email, toko_id } = res.locals;
       this.uc.toko_id = toko_id;
+      req.body.email = email;
+      const id: string = req.params.id;
 
-      this.uc.dataPayment = req.body;
-      const result = await this.uc.payment(req.params.id, email);
+      const { data, count } = await this.uc.getTransaksi(id);
+      const stok = this.uc.calculateTransaksi(data, count, req.body);
+      const result = await this.uc.updateTransaksi(id, stok);
+
       res.status(200).json(result);
     } catch (error) {
       next(error);
